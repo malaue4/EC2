@@ -1,0 +1,7 @@
+Tasks: Reorganize the game logic
+
+Create an object oriented solution for the player (a player/snake class)
+all objects in the game must implement the gameobject interface
+use polymorphism in the update method
+
+Try to create a 'snake' that grows when collecting 'items'
