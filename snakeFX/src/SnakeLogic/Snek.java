@@ -2,70 +2,63 @@ package SnakeLogic;
 
 
 import SnakeGUI.Item;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-import java.awt.Point;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Snek implements GameObject{
-	private int width;
-	private int height;
-	private Point direction = new Point(0, 0);
-	private Color color = Color.LAWNGREEN;
+public class Snek implements GameObject {
+	int width;
+	int height;
+	private Point directionToMove = new Point(0, 0);
+	private Color colorBase = Color.DARKSEAGREEN;
+	private Color colorHighlight = Color.LAWNGREEN;
+	public long timePerField = 500*1000000;
+	public long time;
 
 	private List<Segment> segments = new ArrayList<>();
 
 	public Snek(int x, int y, int width, int height) {
 		this.width = width;
 		this.height = height;
-		Segment segment = new Segment(x, y);
-		segment.setColor(color);
+		Segment segment = new Segment(x, y, this);
+		segment.setColorBase(colorBase);
+		segment.setColorHighlight(colorHighlight);
 		segment.setShape(Segment.Ses.head);
 		getSegments().add(segment);
 	}
 
 	@Override
 	public void update() {
-		for (int i = segments.size()-1; i > 0; i--) {
-			segments.get(i).setX(segments.get(i - 1).getX());
-			segments.get(i).setY(segments.get(i - 1).getY());
-		}
-
 		Segment head = getHead();
-		segments.get(0).setX(segments.get(0).getX() + direction.x);
-		segments.get(0).setY(segments.get(0).getY() + direction.y);
-		if(head.getX()<0)
-			head.setX(width-1);
-		if(head.getX()>=width)
-			head.setX(0);
-		if(head.getY()<0)
-			head.setY(height-1);
-		if(head.getY()>=height)
-			head.setY(0);
+		head.move(directionToMove);
 	}
 
-	public void eatItem(Item item){
-		Segment segment = new Segment(segments.get(0));
-		segment.setColor(item.getColor().interpolate(color, 0.75));
+	/**
+	 * Add  a new segment to the snake, with a colorBase based on the eaten item.
+	 * @param item - the item that is eaten
+	 */
+	public void eatItem(Item item) {
+		Segment segment = new Segment(getHead()); // Check the constructor for details
+		segment.setColorBase(colorBase.interpolate(item.getColor(), 0.15));
+		segment.setColorHighlight(colorHighlight);
 		segments.add(1, segment);
-		if(segments.size() == 2){
-			segment.setShape(Segment.Ses.tail);
-		}
 	}
 
 	public List<Segment> getSegments() {
 		return segments;
 	}
 
-	public void move(int x, int y) {
-		if((y != 0 && direction.y == 0) || (x != 0 && direction.x == 0)){ // Don't do a 180
-			direction.setLocation(x, y);
-			getHead().setDirection(x==0?y==1?1:3:x==1?0:2);
+	public void move(int dx, int dy) {
+		if ((dy != 0 && getHead().getDirection().y == 0) || (dx != 0 && getHead().getDirection().x == 0)) { // Don't do a 180
+			if(getHead().getX()>= 0 && getHead().getX()<width && getHead().getY()>= 0 && getHead().getY()<height) // freeze in the threshold
+				directionToMove.setLocation(dx, dy);
 		}
 	}
 
-	public Segment getHead(){
+	public Segment getHead() {
 		return segments.get(0);
 	}
 
@@ -75,5 +68,12 @@ public class Snek implements GameObject{
 
 	public int getY() {
 		return getHead().getY();
+	}
+
+	public void draw(GraphicsContext g, double fieldWidth, double fieldHeight, long now) {
+		for (int i = segments.size() - 1; i >= 0; i--) {
+			Segment segment = segments.get(i);
+			segment.draw(g, fieldWidth, fieldHeight, (segments.size()*2.0-i)/(segments.size()*2.0), (double)(time-now)/timePerField);
+		}
 	}
 }

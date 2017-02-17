@@ -1,8 +1,8 @@
 package SnakeGUI;
 
 
-import SnakeLogic.Segment;
 import SnakeLogic.Snek;
+import com.sun.javafx.tk.Toolkit;
 import javafx.animation.AnimationTimer;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -12,7 +12,8 @@ import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Random;
 
 public class Controller {
 
@@ -27,21 +28,21 @@ public class Controller {
 	private int height = 20;
 	private Random random = new Random();
 	private int gameLoopDelay = 500;
-	private float refreshRate = 300;
+	private float refreshRate = 16 * 1000000;
+	private float drawRate = 16 * 1000000;
 	private KeyCode keyPressed = KeyCode.BACK_SPACE;
 
 	private ArrayList<Item> items = new ArrayList<Item>();
 	private Snek player;
 
-	private int itemSpawnCount = 10;
+	private int itemSpawnRate = 30;
 
 	Color[] colors = {Color.BLUE, Color.BLUEVIOLET, Color.VIOLET, Color.MEDIUMVIOLETRED, Color.RED};
 
 	public void btnStartAction(ActionEvent event) {
 		System.out.println("btn clicked");
 		labelStatus.setText("test");
-		getRandomPosition();
-		drawCanvas();
+		spawnPlayerAtRandomPosition();
 	}
 
 	/**
@@ -51,17 +52,23 @@ public class Controller {
 		AddItems();
 
 		calculateFields();
-		getRandomPosition();
+		spawnPlayerAtRandomPosition();
 		//drawCanvas();
 
 		// Start and control game loop
 		new AnimationTimer() {
-			long lastUpdate;
+			long lastUpdate = Toolkit.getToolkit().getMasterTimer().nanos();
+			long lastDraw = Toolkit.getToolkit().getMasterTimer().nanos();
 
 			public void handle(long now) {
-				if (now > lastUpdate + refreshRate * 1000000) {
-					lastUpdate = now;
+				if (now > lastUpdate + refreshRate) {
+					lastUpdate += refreshRate;
 					update(now);
+				}
+
+				if (now > lastDraw + drawRate) {
+					lastDraw += drawRate;
+					drawCanvas(now);
 				}
 			}
 		}.start();
@@ -85,36 +92,38 @@ public class Controller {
 
 		switch (keyPressed) {
 			case DOWN:
-				player.move(0,1);
+				player.move(0, 1);
 				break;
 			case LEFT:
-				player.move(-1,0);
+				player.move(-1, 0);
 				break;
 			case RIGHT:
-				player.move(1,0);
+				player.move(1, 0);
 				break;
 			case UP:
-				player.move(0,-1);
+				player.move(0, -1);
 				break;
 		}
 
 
-		itemSpawnCount--;
-		if(itemSpawnCount<0) {
+		itemSpawnRate--;
+		if (itemSpawnRate < 0) {
 			AddItems();
-			itemSpawnCount = 4+items.size();
+			itemSpawnRate = 20 + 5*items.size();
 		}
-		player.update();
+		while(player.time < now) {
+			player.time += player.timePerField;
+			player.update();
 
-		ArrayList<Item> eatenItems = new ArrayList<>();
-		for(Item item : items){
-			if(item.getX() == player.getX() && item.getY() == player.getY()){
-				player.eatItem(item);
-				eatenItems.add(item);
+			ArrayList<Item> eatenItems = new ArrayList<>();
+			for (Item item : items) {
+				if (item.getX() == player.getX() && item.getY() == player.getY()) {
+					player.eatItem(item);
+					eatenItems.add(item);
+				}
 			}
+			items.removeAll(eatenItems);
 		}
-		items.removeAll(eatenItems);
-		drawCanvas();
 
 	}
 
@@ -122,10 +131,11 @@ public class Controller {
 	 * Get a random position
 	 */
 
-	private void getRandomPosition() {
+	private void spawnPlayerAtRandomPosition() {
 		int x = random.nextInt(width);
 		int y = random.nextInt(height);
 		player = new Snek(x, y, width, height);
+		player.time = Toolkit.getToolkit().getMasterTimer().nanos();
 	}
 
 	/**
@@ -139,18 +149,19 @@ public class Controller {
 	/**
 	 * Draw the canvas - used in the gameloop
 	 */
-	private void drawCanvas() {
+	private void drawCanvas(long now) {
 		GraphicsContext g = canvas.getGraphicsContext2D();
 
-		g.clearRect(0, 0, width * fieldWidth, height * fieldHeight);
+		g.setFill(Color.GOLDENROD);
+		g.fillRect(0, 0, width * fieldWidth, height * fieldHeight);
 
 		// draw all fields
-        g.setFill(Color.LIGHTGRAY);
-        for (int i = 0; i < width ; i++) {
-            for (int j = i%2; j < height ; j+=2) {
-                g.fillRect(i*fieldWidth, j*fieldHeight, fieldWidth,fieldHeight);
-            }
-        }
+		g.setFill(Color.DARKGOLDENROD);
+		for (int i = 0; i < width; i++) {
+			for (int j = i % 2; j < height; j += 2) {
+				g.fillRect(i * fieldWidth, j * fieldHeight, fieldWidth, fieldHeight);
+			}
+		}
 
 		// draw items
 		for (Item item : items) {
@@ -159,10 +170,6 @@ public class Controller {
 		}
 
 		// draw 'player'
-		List<Segment> segments = player.getSegments();
-		for (int i = segments.size() - 1; i >= 0; i--) {
-			Segment segment = segments.get(i);
-			segment.draw(g, fieldWidth, fieldHeight);
-		}
+		player.draw(g, fieldWidth, fieldHeight, now);
 	}
 }
