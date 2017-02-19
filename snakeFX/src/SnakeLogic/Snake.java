@@ -5,8 +5,12 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
 
 public class Snake implements GameObject {
 	int width;
@@ -27,6 +31,7 @@ public class Snake implements GameObject {
 		segment.setColorHighlight(colorHighlight);
 		segment.setShape(Segment.Ses.head);
 		segments.add(segment);
+		segments.add(segment.duplicate());
 	}
 
 	@Override
@@ -68,13 +73,47 @@ public class Snake implements GameObject {
 	public void draw(GraphicsContext g, double fieldWidth, double fieldHeight, long now) {
 		for (int i = segments.size() - 1; i >= 0; i--) {
 			Segment segment = segments.get(i);
-			segment.draw(g, fieldWidth, fieldHeight, (segments.size()*2.0-i)/(segments.size()*2.0), (double)(time-now)/timePerField);
+			double girth = (segments.size()*2.0-i)/(segments.size()*2.0);
+
+			g.setFill(segment.getColorBase());
+			g.save();
+
+			Point2D interpolatedPosition = segment.interpolatedPoint(segment.getPreviousPosition(), segment.getPosition(), (double)(time-now)/timePerField);
+			g.translate(interpolatedPosition.getX() * fieldWidth + fieldWidth / 2, interpolatedPosition.getY() * fieldHeight + fieldHeight / 2);
+
+			Point2D heading = segment.interpolatedPoint(segment.getPreviousDirection(), segment.getDirection(), (double)(time-now)/timePerField);
+			double angrad = Math.atan2(heading.getY(), heading.getX()) - Math.atan2(0, 1);
+			g.scale(fieldWidth /25.0, fieldWidth /25.0);
+			g.rotate(Math.toDegrees(angrad));
+			if (segment.getShape() == Segment.Ses.head) {
+				g.fillRoundRect(-21.25, -12.5, 21.25, 25, 10, 10);
+				g.fillOval(-12.5, -12.5, 25, 25);
+				g.setFill(segment.getColorBase().interpolate(segment.getColorHighlight(), 0.5));
+				g.fillRoundRect(-21.25, -6.25, 21.25, 12.5, 5, 5);
+				g.setFill(Color.WHITESMOKE);
+				g.fillOval(0, -8.0, 6, 5);
+				g.fillOval(0, 3.0, 6, 5);
+				g.setFill(Color.BLACK);
+				Point2D looking = new Point2D.Double(
+						(getDirection().getX()-heading.getX())*cos(-angrad) - (getDirection().getY()-heading.getY())*sin(-angrad),
+						(getDirection().getX()-heading.getX())*sin(-angrad) + (getDirection().getY()-heading.getY())*cos(-angrad));
+				g.fillOval(3+looking.getX(), -7.0 + looking.getY(), 3, 3);
+				g.fillOval(3+looking.getX(), 4.0 + looking.getY(), 3, 3);
+			} else if (segment.getShape() == Segment.Ses.body) {
+				g.fillRoundRect(-25, -12.5 *girth, 30.0, 25 *girth, 10, 10);
+				g.setFill(segment.getColorBase().interpolate(segment.getColorHighlight(), 0.5));
+				g.fillRoundRect(-25, -6.25 * girth, 30.0, 12.5 * girth, 5, 5);
+			} else if (segment.getShape() == Segment.Ses.tail) {
+				g.fillRoundRect(-20, -6.25, 20, 12.5, 10, 10);
+			}
+			g.restore();
 		}
 	}
 
 	void setSpeed(int speed){
-		if(speed > 0)
-			timePerField = (500*1000000)/speed;
+		if(speed > 0) {
+			timePerField = (2500 / (4+speed)) * 1000000;
+		}
 	}
 
 	public Point getDirection() {

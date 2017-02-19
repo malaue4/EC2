@@ -113,7 +113,7 @@ public class Game {
 	public void setLevel(int level){
 		spawnPlayerAtRandomPosition();
 		this.level = level;
-		itemGoal = 200/(20-level);
+		itemGoal = 5+5*level;
 		itemEaten = 0;
 		items.clear();
 		levelProgress.setValue(0);

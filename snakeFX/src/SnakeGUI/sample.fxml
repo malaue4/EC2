@@ -10,35 +10,50 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.FlowPane?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="SnakeGUI.Controller">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="440.0" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="SnakeGUI.Controller">
     <center>
-        <Canvas id="canvas" fx:id="canvas" height="400.0" width="600.0" BorderPane.alignment="CENTER" focusTraversable="true">
-            <BorderPane.margin>
-                <Insets />
-            </BorderPane.margin>
-        </Canvas>
+        <Canvas id="canvas" fx:id="canvas" height="400.0" width="600.0" BorderPane.alignment="CENTER"
+                focusTraversable="true"/>
     </center>
     <top>
-        <FlowPane prefHeight="37.0" prefWidth="600.0" BorderPane.alignment="CENTER">
-            <children>
-                <Button mnemonicParsing="false" onAction="#btnStartAction" text="Start" focusTraversable="false">
-                    <FlowPane.margin>
-                        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-                    </FlowPane.margin>
-                </Button>
-                <Button fx:id="btnPause" disable="true" mnemonicParsing="false" onAction="#btnPauseAction" text="Pause" focusTraversable="false">
-                    <FlowPane.margin>
-                        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-                    </FlowPane.margin>
-                </Button>
-                <Label fx:id="labelStatus" text="Label" />
-            <Separator orientation="VERTICAL" />
-            <Label text="Game Speed" />
-                <Label fx:id="labelGameSpeed" prefHeight="25.0" prefWidth="55.0"/>
-            <Separator layoutX="142.0" layoutY="10.0" orientation="VERTICAL" />
-            <Label text="Items Collected" />
-            <ProgressBar fx:id="progressItems" prefWidth="200.0" progress="0.0" />
-            </children>
+        <FlowPane maxHeight="40.0" prefHeight="40.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+            <Button mnemonicParsing="false" onAction="#btnStartAction" text="Start" focusTraversable="false">
+                <FlowPane.margin>
+                    <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+                </FlowPane.margin>
+            </Button>
+            <Button fx:id="btnPause" disable="true" mnemonicParsing="false" onAction="#btnPauseAction" text="Pause"
+                    focusTraversable="false">
+                <FlowPane.margin>
+                    <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+                </FlowPane.margin>
+            </Button>
+            <Label fx:id="labelStatus" text="stopped" prefWidth="50.0">
+                <FlowPane.margin>
+                    <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+                </FlowPane.margin>
+            </Label>
+            <Separator orientation="VERTICAL" prefHeight="40"/>
+            <Label text="Game Speed">
+                <FlowPane.margin>
+                    <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+                </FlowPane.margin>
+            </Label>
+            <Label fx:id="labelGameSpeed" prefHeight="25.0" prefWidth="10.0">
+                <FlowPane.margin>
+                    <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+                </FlowPane.margin>
+            </Label>
+            <Separator orientation="VERTICAL" prefHeight="40"/>
+            <Label text="Items Collected">
+                <FlowPane.margin>
+                    <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+                </FlowPane.margin></Label>
+            <ProgressBar fx:id="progressItems" prefWidth="200.0" progress="0.0">
+                <FlowPane.margin>
+                    <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+                </FlowPane.margin>
+            </ProgressBar>
         </FlowPane>
     </top>
 </BorderPane>
