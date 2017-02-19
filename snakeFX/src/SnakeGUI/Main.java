@@ -18,8 +18,8 @@ public class Main extends Application {
 
 		Controller controller = loader.getController();
 
-		Scene scene = new Scene(root, 600, 400);
-		scene.setOnKeyPressed(event -> controller.keyPressed(event.getCode()));
+		Scene scene = new Scene(root, 600, 500);
+		scene.setOnKeyPressed(event -> controller.game.keyPressed(event.getCode()));
 		primaryStage.setScene(scene);
 		primaryStage.getScene().getStylesheets().add("SnakeGUI/stylesheet.css");
 		primaryStage.show();

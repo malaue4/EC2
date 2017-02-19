@@ -1,7 +1,6 @@
 package SnakeLogic;
 
 
-import SnakeGUI.Item;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -9,7 +8,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Snek implements GameObject {
+public class Snake implements GameObject {
 	int width;
 	int height;
 	private Point directionToMove = new Point(0, 0);
@@ -20,14 +19,14 @@ public class Snek implements GameObject {
 
 	private List<Segment> segments = new ArrayList<>();
 
-	public Snek(int x, int y, int width, int height) {
+	public Snake(int x, int y, int width, int height) {
 		this.width = width;
 		this.height = height;
 		Segment segment = new Segment(x, y, this);
 		segment.setColorBase(colorBase);
 		segment.setColorHighlight(colorHighlight);
 		segment.setShape(Segment.Ses.head);
-		getSegments().add(segment);
+		segments.add(segment);
 	}
 
 	@Override
@@ -41,14 +40,10 @@ public class Snek implements GameObject {
 	 * @param item - the item that is eaten
 	 */
 	public void eatItem(Item item) {
-		Segment segment = new Segment(getHead()); // Check the constructor for details
+		Segment segment = getHead().duplicate();
 		segment.setColorBase(colorBase.interpolate(item.getColor(), 0.15));
 		segment.setColorHighlight(colorHighlight);
 		segments.add(1, segment);
-	}
-
-	public List<Segment> getSegments() {
-		return segments;
 	}
 
 	public void move(int dx, int dy) {
@@ -75,5 +70,14 @@ public class Snek implements GameObject {
 			Segment segment = segments.get(i);
 			segment.draw(g, fieldWidth, fieldHeight, (segments.size()*2.0-i)/(segments.size()*2.0), (double)(time-now)/timePerField);
 		}
+	}
+
+	void setSpeed(int speed){
+		if(speed > 0)
+			timePerField = (500*1000000)/speed;
+	}
+
+	public Point getDirection() {
+		return directionToMove;
 	}
 }

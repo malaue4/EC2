@@ -6,29 +6,60 @@ import javafx.scene.paint.Color;
 import java.awt.*;
 import java.awt.geom.Point2D;
 
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+
 /**
- *
+ * A segment of the snake
  */
 public class Segment {
+	/**
+	 * The base color of the segment
+	 */
 	private Color colorBase;
+	/**
+	 * The highlight color of the segment, it's the stripe on the snakes back
+	 */
 	private Color colorHighlight;
+	/**
+	 * The current position of the segment on the board
+	 */
 	private Point position;
+	/**
+	 * The previous position of the segment on the board
+	 */
 	private Point previousPosition;
+	/**
+	 * The current facing direction of the segment
+	 */
 	private Point direction;
+	/**
+	 * The previous facing direction of the segment
+	 */
 	private Point previousDirection;
+	/**
+	 * The next segment of the snake, if this is null then this segment is the tip of the tail
+	 */
 	private Segment next;
-
-	private Snek player;
+	/**
+	 * The snake this segment belongs to
+	 */
+	private Snake player;
 
 	private Ses shape = Ses.body;
-
 	enum Ses {
 		head,
 		body,
 		tail
 	}
 
-	Segment(int x, int y, Snek player) {
+	/**
+	 *
+	 * @param x - the horizontal position of the segment
+	 * @param y - the vertical position of the segment
+	 * @param player - the snake the segment is attached to
+	 */
+	Segment(int x, int y, Snake player) {
 		position = new Point(x, y);
 		previousPosition = new Point(x,y);
 		direction = new Point(1,0);
@@ -36,32 +67,43 @@ public class Segment {
 		this.player = player;
 	}
 
-	Segment(Segment segment) {
-		this(segment.getX(), segment.getY(), segment.player);
+	/**
+	 * Create a copy of the segment and insert it in the snake after this segment
+	 * @return - the created copy of the segment
+	 */
+	Segment duplicate(){
+		Segment segment = new Segment(getX(), getY(), player);
 
-		setNext(segment.getNext());
-		segment.setNext(this);
+		segment.setNext(next);
+		next = segment;
 
-		previousPosition.setLocation(segment.previousPosition);
-		direction.setLocation(segment.direction);
-		previousDirection.setLocation(segment.previousDirection);
+		segment.previousPosition.setLocation(previousPosition);
+		segment.direction.setLocation(direction);
+		segment.previousDirection.setLocation(previousDirection);
 
-		if (next==null) {
-			setShape(Segment.Ses.tail);
+		if (segment.next==null) {
+			segment.setShape(Ses.tail);
 		}
+		return segment;
 	}
 
+	/**
+	 * Moves the segment to a new position, the direction is relative
+	 * The segment attached to this segment is also moved
+	 * @param direction - where to move to, compared to the current position
+	 */
 	void move(Point direction) {
 		setDirection(direction);
+		translatePosition(direction);
 		if (next != null) {
-			if (!next.position.equals(position)) {
-				Point dir = new Point(position.x - next.position.x, position.y - next.position.y);
-				next.move(dir);
+			if (!next.position.equals(previousPosition)) {
+				Point vec = new Point(previousPosition.x - next.position.x, previousPosition.y - next.position.y);
+				next.move(vec);
 			} else {
 				next.pause();
 			}
 		}
-		translatePosition(direction);
+		//translatePosition(direction);
 		if(position.x<-1){
 			position.x = player.width-1;
 			previousPosition.x = player.width;
@@ -78,7 +120,10 @@ public class Segment {
 		}
 	}
 
-	void pause(){
+	/**
+	 * wait for a turn
+	 */
+	private void pause(){
 		setPosition(getPosition());
 		setDirection(getDirection());
 		if(next!=null){
@@ -86,6 +131,15 @@ public class Segment {
 		}
 	}
 
+
+	/**
+	 * Draws the segment at an interpolated position and rotation, between its previous position and its current position
+	 * @param g - the graphicscontext to draw it with
+	 * @param fieldWidth - the width of a field of the game board, used to determine the size and position of the segment
+	 * @param fieldHeight - the height of a field of the game board, used to determine the size and position of the segment
+	 * @param girth - the thickness of the segment, 1 is same size as the field
+	 * @param progress - how far along is the segment from it's previous position to its current position [0-1]
+	 */
 	public void draw(GraphicsContext g, double fieldWidth, double fieldHeight, double girth, double progress) {
 		g.setFill(colorBase);
 		g.save();
@@ -94,21 +148,29 @@ public class Segment {
 		g.translate(interpolatedPosition.getX() * fieldWidth + fieldWidth / 2, interpolatedPosition.getY() * fieldHeight + fieldHeight / 2);
 
 		Point2D heading = interpolatedPoint(previousDirection, direction, progress);
-		g.rotate(Math.toDegrees(Math.atan2(heading.getY(), heading.getX()) - Math.atan2(0, 1)));
+		double angrad = Math.atan2(heading.getY(), heading.getX()) - Math.atan2(0, 1);
+		g.scale(fieldWidth/25.0, fieldWidth/25.0);
+		g.rotate(Math.toDegrees(angrad));
 		if (shape == Ses.head) {
-			g.fillRoundRect(-fieldWidth*0.85, -fieldHeight/2, fieldWidth*0.85, fieldHeight, 10, 10);
-			g.fillOval(-fieldWidth/2, -fieldHeight/2, fieldWidth, fieldHeight);
+			g.fillRoundRect(-21.25, -12.5, 21.25, 25, 10, 10);
+			g.fillOval(-12.5, -12.5, 25, 25);
 			g.setFill(colorBase.interpolate(colorHighlight, 0.5));
-			g.fillRoundRect(-fieldWidth*0.85, -fieldHeight/2*0.5, fieldWidth*0.85, fieldHeight*0.5, 5, 5);
+			g.fillRoundRect(-21.25, -6.25, 21.25, 12.5, 5, 5);
+			g.setFill(Color.WHITESMOKE);
+			g.fillOval(0, -8.0, 6, 5);
+			g.fillOval(0, 3.0, 6, 5);
 			g.setFill(Color.BLACK);
-			g.fillOval(2, -fieldHeight * 0.20-1, 3, 2);
-			g.fillOval(2, fieldHeight * 0.20, 3, 2);
+			Point2D looking = new Point2D.Double(
+					(player.getDirection().getX()-heading.getX())*cos(-angrad) - (player.getDirection().getY()-heading.getY())*sin(-angrad),
+					(player.getDirection().getX()-heading.getX())*sin(-angrad) + (player.getDirection().getY()-heading.getY())*cos(-angrad));
+			g.fillOval(3+looking.getX(), -7.0 + looking.getY(), 3, 3);
+			g.fillOval(3+looking.getX(), 4.0 + looking.getY(), 3, 3);
 		} else if (shape == Ses.body) {
-			g.fillRoundRect(-fieldWidth, -fieldHeight/2*girth, fieldWidth*1.2, fieldHeight*girth, 10, 10);
+			g.fillRoundRect(-25, -12.5 *girth, 30.0, 25 *girth, 10, 10);
 			g.setFill(colorBase.interpolate(colorHighlight, 0.5));
-			g.fillRoundRect(-fieldWidth, -fieldHeight/2*0.5*girth, fieldWidth*1.2, fieldHeight*0.5*girth, 5, 5);
+			g.fillRoundRect(-25, -6.25 * girth, 30.0, 12.5 * girth, 5, 5);
 		} else if (shape == Ses.tail) {
-			g.fillRoundRect(-fieldWidth/2, -fieldHeight / 4, fieldWidth/2, fieldHeight / 2, 10, 10);
+			g.fillRoundRect(-12.5, -6.25, 12.5, 12.5, 10, 10);
 		}
 		g.restore();
 	}
