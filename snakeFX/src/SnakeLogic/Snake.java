@@ -9,6 +9,7 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.Math.PI;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 
@@ -78,13 +79,16 @@ public class Snake implements GameObject {
 			g.setFill(segment.getColorBase());
 			g.save();
 
-			Point2D interpolatedPosition = segment.interpolatedPoint(segment.getPreviousPosition(), segment.getPosition(), (double)(time-now)/timePerField);
+			Point2D interpolatedPosition = segment.interpolateLinear(segment.getPreviousPosition(), segment.getPosition(), (double)(time-now)/timePerField);
 			g.translate(interpolatedPosition.getX() * fieldWidth + fieldWidth / 2, interpolatedPosition.getY() * fieldHeight + fieldHeight / 2);
 
-			Point2D heading = segment.interpolatedPoint(segment.getPreviousDirection(), segment.getDirection(), (double)(time-now)/timePerField);
+			Point2D heading = segment.interpolateLinear(segment.getPreviousDirection(), segment.getDirection(), (double)(time-now)/timePerField);
 			double angrad = Math.atan2(heading.getY(), heading.getX()) - Math.atan2(0, 1);
 			g.scale(fieldWidth /25.0, fieldWidth /25.0);
-			g.rotate(Math.toDegrees(angrad));
+			double v = (double) ((now+timePerField/3*i)%(timePerField*4)) / timePerField;
+			double v1 = sin(v * PI+PI/2);
+			g.rotate(Math.toDegrees(angrad)-v1*5);
+			g.translate(0, 3* sin(v*PI));
 			if (segment.getShape() == Segment.Ses.head) {
 				g.fillRoundRect(-21.25, -12.5, 21.25, 25, 10, 10);
 				g.fillOval(-12.5, -12.5, 25, 25);
