@@ -85,30 +85,30 @@ public class Controller {
 
 		switch (keyPressed) {
 			case DOWN:
-				player.move(0,1);
+				player.move(0, 1);
 				break;
 			case LEFT:
-				player.move(-1,0);
+				player.move(-1, 0);
 				break;
 			case RIGHT:
-				player.move(1,0);
+				player.move(1, 0);
 				break;
 			case UP:
-				player.move(0,-1);
+				player.move(0, -1);
 				break;
 		}
 
 
 		itemSpawnCount--;
-		if(itemSpawnCount<0) {
+		if (itemSpawnCount < 0) {
 			AddItems();
-			itemSpawnCount = 4+items.size();
+			itemSpawnCount = 4 + items.size();
 		}
 		player.update();
 
 		ArrayList<Item> eatenItems = new ArrayList<>();
-		for(Item item : items){
-			if(item.getX() == player.getX() && item.getY() == player.getY()){
+		for (Item item : items) {
+			if (item.getX() == player.getX() && item.getY() == player.getY()) {
 				player.eatItem(item);
 				eatenItems.add(item);
 			}
@@ -145,12 +145,12 @@ public class Controller {
 		g.clearRect(0, 0, width * fieldWidth, height * fieldHeight);
 
 		// draw all fields
-        g.setFill(Color.LIGHTGRAY);
-        for (int i = 0; i < width ; i++) {
-            for (int j = i%2; j < height ; j+=2) {
-                g.fillRect(i*fieldWidth, j*fieldHeight, fieldWidth,fieldHeight);
-            }
-        }
+		g.setFill(Color.LIGHTGRAY);
+		for (int i = 0; i < width; i++) {
+			for (int j = i % 2; j < height; j += 2) {
+				g.fillRect(i * fieldWidth, j * fieldHeight, fieldWidth, fieldHeight);
+			}
+		}
 
 		// draw items
 		for (Item item : items) {
