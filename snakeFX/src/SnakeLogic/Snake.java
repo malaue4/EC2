@@ -22,6 +22,9 @@ public class Snake implements GameObject {
 	public long timePerField = 500*1000000;
 	public long time;
 
+	boolean isAlive = true;
+	long timeOfDeath;
+
 	private List<Segment> segments = new ArrayList<>();
 
 	public Snake(int x, int y, int width, int height) {
@@ -72,6 +75,7 @@ public class Snake implements GameObject {
 	}
 
 	public void draw(GraphicsContext g, double fieldWidth, double fieldHeight, long now) {
+		if(!isAlive) now = timeOfDeath;
 		for (int i = segments.size() - 1; i >= 0; i--) {
 			Segment segment = segments.get(i);
 			double girth = (segments.size()*2.0-i)/(segments.size()*2.0);
@@ -85,10 +89,10 @@ public class Snake implements GameObject {
 			Point2D heading = segment.interpolateLinear(segment.getPreviousDirection(), segment.getDirection(), (double)(time-now)/timePerField);
 			double angrad = Math.atan2(heading.getY(), heading.getX()) - Math.atan2(0, 1);
 			g.scale(fieldWidth /25.0, fieldWidth /25.0);
-			double v = (double) ((now+timePerField/3*i)%(timePerField*4)) / timePerField;
+			double v = (double) ((now+timePerField/3*i)%(timePerField*8)) / timePerField;
 			double v1 = sin(v * PI+PI/2);
-			g.rotate(Math.toDegrees(angrad)-v1*5);
-			g.translate(0, 3* sin(v*PI));
+			g.rotate(Math.toDegrees(angrad)-v1*2);
+			g.translate(0, 2* sin(v*PI));
 			if (segment.getShape() == Segment.Ses.head) {
 				g.fillRoundRect(-21.25, -12.5, 21.25, 25, 10, 10);
 				g.fillOval(-12.5, -12.5, 25, 25);
@@ -98,11 +102,28 @@ public class Snake implements GameObject {
 				g.fillOval(0, -8.0, 6, 5);
 				g.fillOval(0, 3.0, 6, 5);
 				g.setFill(Color.BLACK);
-				Point2D looking = new Point2D.Double(
-						(getDirection().getX()-heading.getX())*cos(-angrad) - (getDirection().getY()-heading.getY())*sin(-angrad),
-						(getDirection().getX()-heading.getX())*sin(-angrad) + (getDirection().getY()-heading.getY())*cos(-angrad));
-				g.fillOval(3+looking.getX(), -7.0 + looking.getY(), 3, 3);
-				g.fillOval(3+looking.getX(), 4.0 + looking.getY(), 3, 3);
+				if(isAlive) {
+					Point2D looking = new Point2D.Double(
+							(getDirection().getX() - heading.getX()) * cos(-angrad) - (getDirection().getY() - heading.getY()) * sin(-angrad),
+							(getDirection().getX() - heading.getX()) * sin(-angrad) + (getDirection().getY() - heading.getY()) * cos(-angrad));
+					g.fillOval(3 + looking.getX(), -7.0 + looking.getY(), 3, 3);
+					g.fillOval(3 + looking.getX(), 4.0 + looking.getY(), 3, 3);
+				} else {
+					g.save();
+					g.translate(3, -7);
+					g.rotate(45);
+					g.fillRoundRect(-4.5, -1, 9, 2, 3,3);
+					g.rotate(90);
+					g.fillRoundRect(-4.5, -1, 9, 2, 3,3);
+					g.restore();
+					g.save();
+					g.translate(3, 4);
+					g.rotate(45);
+					g.fillRoundRect(-4.5, -1, 9, 2, 3, 3);
+					g.rotate(90);
+					g.fillRoundRect(-4.5, -1, 9, 2, 3, 3);
+					g.restore();
+				}
 			} else if (segment.getShape() == Segment.Ses.body) {
 				g.fillRoundRect(-25, -12.5 *girth, 30.0, 25 *girth, 10, 10);
 				g.setFill(segment.getColorBase().interpolate(segment.getColorHighlight(), 0.5));
@@ -122,5 +143,14 @@ public class Snake implements GameObject {
 
 	public Point getDirection() {
 		return directionToMove;
+	}
+
+	public List<Segment> getSegments() {
+		return segments;
+	}
+
+	public void die(long now) {
+		isAlive = false;
+		timeOfDeath = now;
 	}
 }

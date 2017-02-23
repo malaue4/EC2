@@ -5,7 +5,9 @@ import javafx.beans.property.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 
+import java.awt.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -24,15 +26,20 @@ public class Game {
 	private Color[] colors = {Color.BLUE, Color.BLUEVIOLET, Color.VIOLET, Color.MEDIUMVIOLETRED, Color.RED};
 	public ArrayList<Item> items = new ArrayList<Item>();
 	public Snake player;
-	public int width = 6*5;
-	public int height = 4*5;
+	public int levelSize = 3;
+	public int width = 6*levelSize;
+	public int height = 4*levelSize;
 	private Random random = new Random();
 
 	public KeyCode keyPressed = KeyCode.BACK_SPACE;
 
 	public void addItems(int amount) {
 		for (int i = 0; i < amount; i++) {
-			items.add(new Item(colors[random.nextInt(colors.length)], random.nextInt(width), random.nextInt(height)));
+			Point pos = getRandomPoint();
+			for(Item item : items){
+				if(item.getPosition().equals(pos)) return;
+			}
+			items.add(new Item(colors[random.nextInt(colors.length)], pos.x, pos.y));
 		}
 	}
 
@@ -40,10 +47,13 @@ public class Game {
 	 * Get a random position
 	 */
 	public void spawnPlayerAtRandomPosition() {
-		int x = random.nextInt(width);
-		int y = random.nextInt(height);
-		player = new Snake(x, y, width, height);
+		Point pos = getRandomPoint();
+		player = new Snake(pos.x, pos.y, width, height);
 		player.time = Toolkit.getToolkit().getMasterTimer().nanos();
+	}
+
+	private Point getRandomPoint() {
+		return new Point(random.nextInt(width),random.nextInt(height));
 	}
 
 	public void keyPressed(KeyCode keyCode) {
@@ -96,6 +106,11 @@ public class Game {
 				}
 			}
 			items.removeAll(eatenItems);
+			for(Segment segment : player.getSegments().subList(2, player.getSegments().size())){
+				if (segment.getX() == player.getX() && segment.getY() == player.getY()) {
+					gameOver(now);
+				}
+			}
 
 			if(itemEaten >= itemGoal){
 				setLevel(level+1);
@@ -105,7 +120,7 @@ public class Game {
 	}
 
 	public void newGame() {
-		setLevel(1);
+		setLevel(10);
 		setPaused(false);
 		setPlaying(true);
 	}
@@ -121,8 +136,9 @@ public class Game {
 		setGameSpeed(level);
 	}
 
-	public void gameOver(){
+	public void gameOver(long now){
 		setPlaying(false);
+		player.die(now);
 	}
 
 
