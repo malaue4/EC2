@@ -7,6 +7,7 @@ import javafx.scene.paint.Color;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import static java.lang.Math.PI;
@@ -22,7 +23,7 @@ public class Snake implements GameObject {
 	public long timePerField = 500*1000000;
 	public long time;
 
-	private List<Segment> segments = new ArrayList<>();
+	private List<Segment> segments = new LinkedList<>();
 
 	public Snake(int x, int y, int width, int height) {
 		this.width = width;
@@ -30,7 +31,7 @@ public class Snake implements GameObject {
 		Segment segment = new Segment(x, y, this);
 		segment.setColorBase(colorBase);
 		segment.setColorHighlight(colorHighlight);
-		segment.setShape(Segment.Ses.head);
+		segment.setShape(Segment.SegmentShape.head);
 		segments.add(segment);
 		segments.add(segment.duplicate());
 	}
@@ -72,24 +73,27 @@ public class Snake implements GameObject {
 	}
 
 	public void draw(GraphicsContext g, double fieldWidth, double fieldHeight, long now) {
+
+		double t = (double) (time - now) / timePerField;
+		t = t*t;
+
+
 		for (int i = segments.size() - 1; i >= 0; i--) {
 			Segment segment = segments.get(i);
 			double girth = (segments.size()*2.0-i)/(segments.size()*2.0);
 
-			g.setFill(segment.getColorBase());
+			Point2D interpolatedPosition = segment.interpolateLinear(segment.getPreviousPosition(), segment.getCurrentPosition(), t);
+			Point2D heading = segment.interpolateLinear(segment.getPreviousDirection(), segment.getDirection(), t);
+			double angle = Math.atan2(heading.getY(), heading.getX()) - Math.atan2(0, 1);
+
 			g.save();
-
-			Point2D interpolatedPosition = segment.interpolateLinear(segment.getPreviousPosition(), segment.getPosition(), (double)(time-now)/timePerField);
 			g.translate(interpolatedPosition.getX() * fieldWidth + fieldWidth / 2, interpolatedPosition.getY() * fieldHeight + fieldHeight / 2);
-
-			Point2D heading = segment.interpolateLinear(segment.getPreviousDirection(), segment.getDirection(), (double)(time-now)/timePerField);
-			double angrad = Math.atan2(heading.getY(), heading.getX()) - Math.atan2(0, 1);
 			g.scale(fieldWidth /25.0, fieldWidth /25.0);
-			double v = (double) ((now+timePerField/3*i)%(timePerField*4)) / timePerField;
-			double v1 = sin(v * PI+PI/2);
-			g.rotate(Math.toDegrees(angrad)-v1*5);
-			g.translate(0, 3* sin(v*PI));
-			if (segment.getShape() == Segment.Ses.head) {
+			g.rotate(Math.toDegrees(angle));
+
+
+			if (segment.getShape() == Segment.SegmentShape.head) {
+				g.setFill(segment.getColorBase());
 				g.fillRoundRect(-21.25, -12.5, 21.25, 25, 10, 10);
 				g.fillOval(-12.5, -12.5, 25, 25);
 				g.setFill(segment.getColorBase().interpolate(segment.getColorHighlight(), 0.5));
@@ -99,15 +103,17 @@ public class Snake implements GameObject {
 				g.fillOval(0, 3.0, 6, 5);
 				g.setFill(Color.BLACK);
 				Point2D looking = new Point2D.Double(
-						(getDirection().getX()-heading.getX())*cos(-angrad) - (getDirection().getY()-heading.getY())*sin(-angrad),
-						(getDirection().getX()-heading.getX())*sin(-angrad) + (getDirection().getY()-heading.getY())*cos(-angrad));
+						(getDirection().getX()-heading.getX())*cos(-angle) - (getDirection().getY()-heading.getY())*sin(-angle),
+						(getDirection().getX()-heading.getX())*sin(-angle) + (getDirection().getY()-heading.getY())*cos(-angle));
 				g.fillOval(3+looking.getX(), -7.0 + looking.getY(), 3, 3);
 				g.fillOval(3+looking.getX(), 4.0 + looking.getY(), 3, 3);
-			} else if (segment.getShape() == Segment.Ses.body) {
+			} else if (segment.getShape() == Segment.SegmentShape.body) {
+				g.setFill(segment.getColorBase());
 				g.fillRoundRect(-25, -12.5 *girth, 30.0, 25 *girth, 10, 10);
 				g.setFill(segment.getColorBase().interpolate(segment.getColorHighlight(), 0.5));
 				g.fillRoundRect(-25, -6.25 * girth, 30.0, 12.5 * girth, 5, 5);
-			} else if (segment.getShape() == Segment.Ses.tail) {
+			} else if (segment.getShape() == Segment.SegmentShape.tail) {
+				g.setFill(segment.getColorBase());
 				g.fillRoundRect(-20, -6.25, 20, 12.5, 10, 10);
 			}
 			g.restore();

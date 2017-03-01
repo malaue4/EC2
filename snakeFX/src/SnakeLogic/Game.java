@@ -32,7 +32,7 @@ public class Game {
 
 	public void addItems(int amount) {
 		for (int i = 0; i < amount; i++) {
-			items.add(new Item(colors[random.nextInt(colors.length)], random.nextInt(width), random.nextInt(height)));
+			items.add(new DisappearingItem(colors[random.nextInt(colors.length)], random.nextInt(width), random.nextInt(height)));
 		}
 	}
 
@@ -86,16 +86,18 @@ public class Game {
 			player.time += player.timePerField;
 			player.update();
 
-			ArrayList<Item> eatenItems = new ArrayList<>();
+			ArrayList<Item> deadItems = new ArrayList<>();
 			for (Item item : items) {
+				item.update();
 				if (item.getX() == player.getX() && item.getY() == player.getY()) {
 					player.eatItem(item);
-					eatenItems.add(item);
+					item.die();
 					itemEaten++;
 					levelProgress.setValue((double) itemEaten/itemGoal);
 				}
+				if(item.isDead()) deadItems.add(item);
 			}
-			items.removeAll(eatenItems);
+			items.removeAll(deadItems);
 
 			if(itemEaten >= itemGoal){
 				setLevel(level+1);
