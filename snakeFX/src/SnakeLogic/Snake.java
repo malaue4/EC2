@@ -23,6 +23,8 @@ public class Snake implements GameObject {
 	public long timePerField = 500*1000000;
 	public long time;
 
+	boolean isAlive = true;
+	long timeOfDeath;
 	private List<Segment> segments = new LinkedList<>();
 
 	public Snake(int x, int y, int width, int height) {
@@ -73,7 +75,7 @@ public class Snake implements GameObject {
 	}
 
 	public void draw(GraphicsContext g, double fieldWidth, double fieldHeight, long now) {
-
+		if(!isAlive) now = timeOfDeath;
 		double t = (double) (time - now) / timePerField;
 		t = t*t;
 
@@ -102,11 +104,28 @@ public class Snake implements GameObject {
 				g.fillOval(0, -8.0, 6, 5);
 				g.fillOval(0, 3.0, 6, 5);
 				g.setFill(Color.BLACK);
-				Point2D looking = new Point2D.Double(
-						(getDirection().getX()-heading.getX())*cos(-angle) - (getDirection().getY()-heading.getY())*sin(-angle),
-						(getDirection().getX()-heading.getX())*sin(-angle) + (getDirection().getY()-heading.getY())*cos(-angle));
-				g.fillOval(3+looking.getX(), -7.0 + looking.getY(), 3, 3);
-				g.fillOval(3+looking.getX(), 4.0 + looking.getY(), 3, 3);
+				if(isAlive) {
+					Point2D looking = new Point2D.Double(
+							(getDirection().getX() - heading.getX()) * cos(-angle) - (getDirection().getY() - heading.getY()) * sin(-angle),
+							(getDirection().getX() - heading.getX()) * sin(-angle) + (getDirection().getY() - heading.getY()) * cos(-angle));
+					g.fillOval(3 + looking.getX(), -7.0 + looking.getY(), 3, 3);
+					g.fillOval(3 + looking.getX(), 4.0 + looking.getY(), 3, 3);
+				} else {
+					g.save();
+					g.translate(3, -7);
+					g.rotate(45);
+					g.fillRoundRect(-4.5, -1, 9, 2, 3,3);
+					g.rotate(90);
+					g.fillRoundRect(-4.5, -1, 9, 2, 3,3);
+					g.restore();
+					g.save();
+					g.translate(3, 4);
+					g.rotate(45);
+					g.fillRoundRect(-4.5, -1, 9, 2, 3, 3);
+					g.rotate(90);
+					g.fillRoundRect(-4.5, -1, 9, 2, 3, 3);
+					g.restore();
+				}
 			} else if (segment.getShape() == Segment.SegmentShape.body) {
 				g.setFill(segment.getColorBase());
 				g.fillRoundRect(-25, -12.5 *girth, 30.0, 25 *girth, 10, 10);
@@ -128,5 +147,14 @@ public class Snake implements GameObject {
 
 	public Point getDirection() {
 		return directionToMove;
+	}
+
+	public List<Segment> getSegments() {
+		return segments;
+	}
+
+	public void die(long now) {
+		isAlive = false;
+		timeOfDeath = now;
 	}
 }

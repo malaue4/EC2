@@ -3,6 +3,7 @@ package SnakeLogic;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
+import java.awt.*;
 import java.util.Random;
 
 import static java.lang.Math.PI;
@@ -11,16 +12,14 @@ import static java.lang.Math.sin;
 
 public class Item implements GameObject {
 	private Color color;
-	private int x;
-	private int y;
+	private Point position;
 	int phase;
 	int phaseOffset;
 	boolean dead = false;
 
 	public Item(Color color, int x, int y) {
 		this.color = color;
-		this.x = x;
-		this.y = y;
+		position = new Point(x, y);
 
 		Random random = new Random();
 		phase = (800 * 1000000) + random.nextInt(500);
@@ -31,12 +30,16 @@ public class Item implements GameObject {
 		return color;
 	}
 
+	public Point getPosition(){
+		return position;
+	}
+
 	public int getX() {
-		return x;
+		return position.x;
 	}
 
 	public int getY() {
-		return y;
+		return position.y;
 	}
 
 	@Override
@@ -55,7 +58,7 @@ public class Item implements GameObject {
 	public void draw(GraphicsContext g, double fieldWidth, double fieldHeight, long now) {
 		g.save();
 		float t = (float)((now+phaseOffset) % phase)/phase;
-		g.translate(x * fieldWidth+fieldWidth/2, y * fieldHeight+fieldHeight/2);
+		g.translate(position.x * fieldWidth+fieldWidth/2, position.y * fieldHeight+fieldHeight/2);
 		g.scale(fieldWidth/25.0, fieldWidth/25.0);
 
 		g.setFill(Color.DARKSLATEGRAY);
