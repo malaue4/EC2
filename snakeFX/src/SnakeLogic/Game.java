@@ -14,6 +14,12 @@ import java.util.Random;
  * Class for the game logic
  */
 public class Game {
+
+	private static Game instance = new Game();
+	public static Game getInstance() {
+		return instance;
+	}
+
 	private BooleanProperty paused = new SimpleBooleanProperty(true);
 	private BooleanProperty playing = new SimpleBooleanProperty(false);
 	private IntegerProperty gameSpeed = new SimpleIntegerProperty(1);
@@ -23,37 +29,20 @@ public class Game {
 	private int itemGoal = 10;
 	private int itemEaten = 0;
 	private int itemSpawnRate = 60;
-	private Color[] colors = {Color.BLUE, Color.BLUEVIOLET, Color.VIOLET, Color.MEDIUMVIOLETRED, Color.RED};
 	public ArrayList<Item> items = new ArrayList<Item>();
 	public Snake player;
-	public int levelSize = 3;
-	public int width = 6*levelSize;
-	public int height = 4*levelSize;
-	private Random random = new Random();
+
+	private StageInfo stageInfo;
 
 	public KeyCode keyPressed = KeyCode.BACK_SPACE;
-
-	public void addItems(int amount) {
-		for (int i = 0; i < amount; i++) {
-			Point pos = getRandomPoint();
-			for(Item item : items){
-				if(item.getPosition().equals(pos)) return;
-			}
-			items.add(new DisappearingItem(colors[random.nextInt(colors.length)], pos.x, pos.y));
-		}
-	}
 
 	/**
 	 * Get a random position
 	 */
 	public void spawnPlayerAtRandomPosition() {
-		Point pos = getRandomPoint();
-		player = new Snake(pos.x, pos.y, width, height);
+		Point pos = stageInfo.getRandomPoint();
+		player = new Snake(pos.x, pos.y, stageInfo.width, stageInfo.height);
 		player.time = Toolkit.getToolkit().getMasterTimer().nanos();
-	}
-
-	private Point getRandomPoint() {
-		return new Point(random.nextInt(width),random.nextInt(height));
 	}
 
 	public void keyPressed(KeyCode keyCode) {
@@ -87,7 +76,7 @@ public class Game {
 
 		if(!isPaused())itemSpawnRate--;
 		if (itemSpawnRate < 0) {
-			addItems(1);
+			stageInfo.addItems(1);
 			itemSpawnRate = 60 + 5*items.size();
 		}
 
@@ -122,6 +111,7 @@ public class Game {
 	}
 
 	public void newGame() {
+		stageInfo = new StageInfo(5);
 		setLevel(1);
 		setPaused(false);
 		setPlaying(true);
@@ -134,7 +124,7 @@ public class Game {
 		itemEaten = 0;
 		items.clear();
 		levelProgress.setValue(0);
-		addItems(2);
+		stageInfo.addItems(2);
 		setGameSpeed(level);
 	}
 
@@ -186,5 +176,9 @@ public class Game {
 
 	public DoubleProperty levelProgressProperty() {
 		return levelProgress;
+	}
+
+	public StageInfo getStageInfo() {
+		return stageInfo;
 	}
 }

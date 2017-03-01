@@ -30,9 +30,9 @@ public class Controller {
 	private double fieldHeight;
 	private double fieldWidth;
 	private float refreshRate = 16 * 1000000;
-	private float drawRate = 32 * 1000000;
+	private float drawRate = 16 * 1000000;
 
-	Game game = new Game();
+	Game game = Game.getInstance();
 
 	/**
 	 * Executed when JavaFX is initialized. Used to setup the Snake game
@@ -70,8 +70,8 @@ public class Controller {
 	 * Calculate height and width of each field
 	 */
 	private void calculateFields() {
-		fieldHeight = canvas.getHeight() / game.height;
-		fieldWidth = canvas.getWidth() / game.width;
+		fieldHeight = canvas.getHeight() / game.getStageInfo().height;
+		fieldWidth = canvas.getWidth() / game.getStageInfo().width;
 	}
 
 	/**
@@ -82,12 +82,12 @@ public class Controller {
 
 		// draw a background color
 		g.setFill(Color.GOLDENROD);
-		g.fillRect(0, 0, game.width * fieldWidth, game.height * fieldHeight);
+		g.fillRect(0, 0, game.getStageInfo().width * fieldWidth, game.getStageInfo().height * fieldHeight);
 
 		// draw every other field in a checkerboard pattern
 		g.setFill(Color.DARKGOLDENROD);
-		for (int i = 0; i < game.width; i++) {
-			for (int j = i % 2; j < game.height; j += 2) {
+		for (int i = 0; i < game.getStageInfo().width; i++) {
+			for (int j = i % 2; j < game.getStageInfo().height; j += 2) {
 				g.fillRect(i * fieldWidth, j * fieldHeight, fieldWidth, fieldHeight);
 			}
 		}

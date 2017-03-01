@@ -44,6 +44,7 @@ public class Snake implements GameObject {
 		head.move(directionToMove);
 	}
 
+
 	/**
 	 * Add  a new segment to the snake, with a colorBase based on the eaten item.
 	 * @param item - the item that is eaten

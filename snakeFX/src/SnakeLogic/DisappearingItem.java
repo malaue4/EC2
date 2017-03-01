@@ -8,6 +8,7 @@ import static java.lang.Math.sin;
 
 /**
  * Created by Martin on 28-02-2017.
+ *
  */
 public class DisappearingItem extends Item {
 
