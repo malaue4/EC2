@@ -15,6 +15,7 @@ public class Item implements GameObject {
 	private Point position;
 	int phase;
 	int phaseOffset;
+	boolean dead = false;
 
 	public Item(Color color, int x, int y) {
 		this.color = color;
@@ -44,6 +45,14 @@ public class Item implements GameObject {
 	@Override
 	public void update() {
 
+	}
+
+	void die() {
+		dead = true;
+	}
+
+	public boolean isDead(){
+		return dead;
 	}
 
 	public void draw(GraphicsContext g, double fieldWidth, double fieldHeight, long now) {

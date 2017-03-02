@@ -1,14 +1,9 @@
 package SnakeLogic;
 
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
-
-import static java.lang.Math.PI;
-import static java.lang.Math.cos;
-import static java.lang.Math.sin;
 
 /**
  * A segment of the snake
@@ -25,7 +20,7 @@ public class Segment {
 	/**
 	 * The current position of the segment on the board
 	 */
-	private Point position;
+	private Point currentPosition;
 	/**
 	 * The previous position of the segment on the board
 	 */
@@ -43,12 +38,21 @@ public class Segment {
 	 */
 	private Segment next;
 	/**
+	 * The previous segment of the snake, if this is null then this segment is the head
+	 */
+	private Segment previous;
+	/**
 	 * The snake this segment belongs to
 	 */
 	private Snake player;
 
-	private Ses shape = Ses.body;
-	enum Ses {
+	private SegmentShape shape = SegmentShape.body;
+
+	public void setPrevious(Segment previous) {
+		this.previous = previous;
+	}
+
+	enum SegmentShape {
 		head,
 		body,
 		tail
@@ -56,12 +60,12 @@ public class Segment {
 
 	/**
 	 *
-	 * @param x - the horizontal position of the segment
-	 * @param y - the vertical position of the segment
+	 * @param x - the horizontal currentPosition of the segment
+	 * @param y - the vertical currentPosition of the segment
 	 * @param player - the snake the segment is attached to
 	 */
 	Segment(int x, int y, Snake player) {
-		position = new Point(x, y);
+		currentPosition = new Point(x, y);
 		previousPosition = new Point(x,y);
 		direction = new Point(1,0);
 		previousDirection = new Point(1,0);
@@ -70,13 +74,17 @@ public class Segment {
 
 	/**
 	 * Create a copy of the segment and insert it in the snake after this segment
+	 *
 	 * @return - the created copy of the segment
 	 */
-	Segment duplicate(){
+	Segment duplicate() {
 		Segment segment = new Segment(getX(), getY(), player);
 
 		segment.setNext(next);
-		next = segment;
+		segment.setPrevious(this);
+		if(next != null)
+			next.setPrevious(segment);
+		this.setNext(segment);
 
 		segment.previousPosition.setLocation(previousPosition);
 		segment.direction.setLocation(direction);
@@ -84,41 +92,41 @@ public class Segment {
 		segment.setColorBase(colorBase);
 		segment.setColorHighlight(colorHighlight);
 
-		if (segment.next==null) {
-			segment.setShape(Ses.tail);
+		if (segment.next == null) {
+			segment.setShape(SegmentShape.tail);
 		}
 		return segment;
 	}
 
 	/**
-	 * Moves the segment to a new position, the direction is relative
+	 * Moves the segment to a new currentPosition, the direction is relative
 	 * The segment attached to this segment is also moved
-	 * @param direction - where to move to, compared to the current position
+	 * @param direction - where to move to, compared to the current currentPosition
 	 */
 	void move(Point direction) {
 		setDirection(direction);
 		translatePosition(direction);
 		if (next != null) {
-			if (!next.position.equals(previousPosition)) {
-				Point vec = new Point(previousPosition.x - next.position.x, previousPosition.y - next.position.y);
+			if (!next.currentPosition.equals(previousPosition)) {
+				Point vec = new Point(previousPosition.x - next.currentPosition.x, previousPosition.y - next.currentPosition.y);
 				next.move(vec);
 			} else {
 				next.pause();
 			}
 		}
 		//translatePosition(direction);
-		if(position.x<-1){
-			position.x = player.width-1;
+		if(currentPosition.x<-1){
+			currentPosition.x = player.width-1;
 			previousPosition.x = player.width;
-		} else if(position.x >= player.width+1){
-			position.x = 0;
+		} else if(currentPosition.x >= player.width+1){
+			currentPosition.x = 0;
 			previousPosition.x = -1;
 		}
-		if(position.y<-1){
-			position.y = player.height-1;
+		if(currentPosition.y<-1){
+			currentPosition.y = player.height-1;
 			previousPosition.y = player.height;
-		} else if(position.y >= player.height+1){
-			position.y = 0;
+		} else if(currentPosition.y >= player.height+1){
+			currentPosition.y = 0;
 			previousPosition.y = -1;
 		}
 	}
@@ -127,7 +135,7 @@ public class Segment {
 	 * wait for a turn
 	 */
 	private void pause(){
-		setPosition(getPosition());
+		setCurrentPosition(getCurrentPosition());
 		setDirection(getDirection());
 		if(next!=null){
 			next.pause();
@@ -152,19 +160,19 @@ public class Segment {
 	}
 
 	public int getX() {
-		return position.x;
+		return currentPosition.x;
 	}
 
 	public void setX(int x) {
-		position.x = x;
+		currentPosition.x = x;
 	}
 
 	public int getY() {
-		return position.y;
+		return currentPosition.y;
 	}
 
 	public void setY(int y) {
-		position.y = y;
+		currentPosition.y = y;
 	}
 
 	public Point getDirection() {
@@ -177,20 +185,20 @@ public class Segment {
 	}
 
 	private void translatePosition(Point direction) {
-		previousPosition.setLocation(position);
-		position.translate(direction.x, direction.y);
+		previousPosition.setLocation(currentPosition);
+		currentPosition.translate(direction.x, direction.y);
 	}
 
-	public Point getPosition() {
-		return position;
+	public Point getCurrentPosition() {
+		return currentPosition;
 	}
 
-	public void setPosition(Point position) {
-		previousPosition.setLocation(this.position);
-		this.position = position;
+	public void setCurrentPosition(Point currentPosition) {
+		previousPosition.setLocation(this.currentPosition);
+		this.currentPosition = currentPosition;
 	}
 
-	public void setShape(Ses shape) {
+	public void setShape(SegmentShape shape) {
 		this.shape = shape;
 	}
 
@@ -226,7 +234,7 @@ public class Segment {
 		this.player = player;
 	}
 
-	public Ses getShape() {
+	public SegmentShape getShape() {
 		return shape;
 	}
 
