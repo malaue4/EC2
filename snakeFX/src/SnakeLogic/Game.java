@@ -120,7 +120,7 @@ public class Game {
 	}
 
 	public void newGame() {
-		setLevel(10);
+		setLevel(1);
 		setPaused(false);
 		setPlaying(true);
 	}

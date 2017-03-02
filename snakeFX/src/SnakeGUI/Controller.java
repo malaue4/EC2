@@ -30,7 +30,7 @@ public class Controller {
 	private double fieldHeight;
 	private double fieldWidth;
 	private float refreshRate = 16 * 1000000;
-	private float drawRate = 32 * 1000000;
+	private float drawRate = 16 * 1000000;
 
 	Game game = new Game();
 
