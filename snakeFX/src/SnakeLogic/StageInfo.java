@@ -16,8 +16,6 @@ public class StageInfo {
 	public int height;
 	private Color[] colors = {Color.BLUE, Color.BLUEVIOLET, Color.VIOLET, Color.MEDIUMVIOLETRED, Color.RED};
 	private Random random = new Random();
-
-	Queue<GameObject> gameObjects = new PriorityQueue<>();
 	Map<Point, Field> fieldMap = new HashMap<>();
 
 	public StageInfo(int levelSize) {
@@ -43,25 +41,7 @@ public class StageInfo {
 		}
 	}
 
-	public boolean addGameObject(GameObject gameObject, Point point){
-		Field field = fieldMap.get(point);
-		if(field.isFree()){
-			field.setContents(gameObject);
-			return true;
-		}
-		return false;
-	}
-
-	public void addItems(int amount) {
-		for (int i = 0; i < amount; i++) {
-			Point point = getRandomPoint();
-			if(point == null) continue;
-			Color color = getRandomColor();
-			addGameObject(new DisappearingItem(color, point.x, point.y), point);
-		}
-	}
-
-	private Color getRandomColor() {
+	Color getRandomColor() {
 		return colors[random.nextInt(colors.length)];
 	}
 

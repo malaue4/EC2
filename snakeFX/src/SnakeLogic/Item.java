@@ -34,20 +34,13 @@ public class Item implements GameObject {
 		return position;
 	}
 
-	public int getX() {
-		return position.x;
-	}
-
-	public int getY() {
-		return position.y;
-	}
-
 	@Override
 	public void update() {
 
 	}
 
-	void die() {
+	@Override
+	public void die() {
 		dead = true;
 	}
 
@@ -55,18 +48,17 @@ public class Item implements GameObject {
 		return dead;
 	}
 
-	public void draw(GraphicsContext g, double fieldWidth, double fieldHeight, long now) {
+	public void draw(GraphicsContext g, long now) {
 		g.save();
 		float t = (float)((now+phaseOffset) % phase)/phase;
-		g.translate(position.x * fieldWidth+fieldWidth/2, position.y * fieldHeight+fieldHeight/2);
-		g.scale(fieldWidth/25.0, fieldWidth/25.0);
+		g.translate(position.x + 0.5, position.y + 0.5);
 
 		g.setFill(Color.DARKSLATEGRAY);
-		double sSize = 3+sin(t*PI*2);
+		double sSize = 0.12 + 0.04 *sin(t*PI*2);
 		g.fillOval(-sSize*1.1, -sSize, sSize*2.2, sSize*2);
 
 		g.setFill(color);
-		g.fillOval(-5, -10+sin(t*PI*2)*2, 10, 10);
+		g.fillOval(-0.2, -0.4 +sin(t*PI*2)*0.08, 0.4, 0.4);
 		g.restore();
 	}
 }

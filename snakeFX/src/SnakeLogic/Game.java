@@ -19,6 +19,9 @@ public class Game {
 	public static Game getInstance() {
 		return instance;
 	}
+	private Game(){
+		stageInfo = new StageInfo(5);
+	}
 
 	private BooleanProperty paused = new SimpleBooleanProperty(true);
 	private BooleanProperty playing = new SimpleBooleanProperty(false);
@@ -29,8 +32,9 @@ public class Game {
 	private int itemGoal = 10;
 	private int itemEaten = 0;
 	private int itemSpawnRate = 60;
-	public ArrayList<Item> items = new ArrayList<Item>();
 	public Snake player;
+
+	public List<GameObject> gameObjects = new ArrayList<>();
 
 	private StageInfo stageInfo;
 
@@ -76,8 +80,8 @@ public class Game {
 
 		if(!isPaused())itemSpawnRate--;
 		if (itemSpawnRate < 0) {
-			stageInfo.addItems(1);
-			itemSpawnRate = 60 + 5*items.size();
+			addItems(10);
+			itemSpawnRate = 60 + 5*gameObjects.size();
 		}
 
 		if(isPaused())player.time = now;
@@ -85,18 +89,12 @@ public class Game {
 			player.time += player.timePerField;
 			player.update();
 
-			ArrayList<Item> deadItems = new ArrayList<>();
-			for (Item item : items) {
-				item.update();
-				if (item.getX() == player.getX() && item.getY() == player.getY()) {
-					player.eatItem(item);
-					item.die();
-					itemEaten++;
-					levelProgress.setValue((double) itemEaten/itemGoal);
-				}
-				if(item.isDead()) deadItems.add(item);
+			ArrayList<GameObject> deadItems = new ArrayList<>();
+			for (GameObject gameObject : gameObjects) {
+				gameObject.update();
+				if(gameObject.isDead()) deadItems.add(gameObject);
 			}
-			items.removeAll(deadItems);
+			removeGameObjects(deadItems);
 			for(Segment segment : player.getSegments().subList(2, player.getSegments().size())){
 				if (segment.getX() == player.getX() && segment.getY() == player.getY()) {
 					gameOver(now);
@@ -110,9 +108,16 @@ public class Game {
 
 	}
 
+	private void removeGameObjects(List<GameObject> gameObjects) {
+		for(GameObject gameObject : gameObjects){
+			this.gameObjects.remove(gameObject);
+			stageInfo.fieldMap.get(gameObject.getPosition()).setContents(null);
+		}
+	}
+
 	public void newGame() {
-		stageInfo = new StageInfo(5);
-		setLevel(1);
+		stageInfo = new StageInfo(20);
+		setLevel(100);
 		setPaused(false);
 		setPlaying(true);
 	}
@@ -122,9 +127,9 @@ public class Game {
 		this.level = level;
 		itemGoal = 5+5*level;
 		itemEaten = 0;
-		items.clear();
+		gameObjects.clear();
 		levelProgress.setValue(0);
-		stageInfo.addItems(2);
+		addItems(2);
 		setGameSpeed(level);
 	}
 
@@ -133,7 +138,19 @@ public class Game {
 		player.die(now);
 	}
 
+	public void addItems(int amount) {
+		for (int i = 0; i < amount; i++) {
+			Point point = stageInfo.getRandomPoint();
+			if(point == null) continue;
+			Color color = stageInfo.getRandomColor();
+			addGameObject(new Item(color, point.x, point.y), point);
+		}
+	}
 
+	private void addGameObject(GameObject gameObject, Point point) {
+		stageInfo.fieldMap.get(point).setContents(gameObject);
+		gameObjects.add(gameObject);
+	}
 
 	public boolean isPaused() {
 		return paused.get();
@@ -180,5 +197,14 @@ public class Game {
 
 	public StageInfo getStageInfo() {
 		return stageInfo;
+	}
+
+	public int getItemEaten() {
+		return itemEaten;
+	}
+
+	public void setItemEaten(int itemEaten) {
+		this.itemEaten = itemEaten;
+		levelProgress.setValue((double) itemEaten / itemGoal);
 	}
 }

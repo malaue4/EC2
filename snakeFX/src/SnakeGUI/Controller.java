@@ -2,6 +2,7 @@ package SnakeGUI;
 
 
 import SnakeLogic.Game;
+import SnakeLogic.GameObject;
 import SnakeLogic.Item;
 import com.sun.javafx.tk.Toolkit;
 import javafx.animation.AnimationTimer;
@@ -92,21 +93,25 @@ public class Controller {
 			}
 		}
 
+		g.save();
+		g.scale(fieldWidth, fieldHeight);
+
 		// draw items
-		for (Item item : game.items) {
-			item.draw(g, fieldWidth, fieldHeight, now);
+		for (GameObject gameObject : game.gameObjects) {
+			gameObject.draw(g, now);
 		}
 
 		// draw 'player'
 		if(game.player != null)
-			game.player.draw(g, fieldWidth, fieldHeight, now);
+			game.player.draw(g, now);
+		g.restore();
 	}
 
 	public void btnStartAction(ActionEvent event) {
 		System.out.println("btn clicked");
 		labelStatus.setText("playing");
-
 		game.newGame();
+		calculateFields();
 	}
 
 	public void btnPauseAction(ActionEvent event) {
