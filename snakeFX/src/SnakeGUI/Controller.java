@@ -1,13 +1,11 @@
 package SnakeGUI;
 
 
+import SnakeLogic.Field;
 import SnakeLogic.Game;
 import SnakeLogic.GameObject;
-import SnakeLogic.Item;
 import com.sun.javafx.tk.Toolkit;
 import javafx.animation.AnimationTimer;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
@@ -91,6 +89,12 @@ public class Controller {
 			for (int j = i % 2; j < game.getStageInfo().height; j += 2) {
 				g.fillRect(i * fieldWidth, j * fieldHeight, fieldWidth, fieldHeight);
 			}
+		}
+
+		for(Field field : game.getStageInfo().getFieldMap().values()){
+			if(field.getContents() != null) g.setFill(Color.RED);
+			else g.setFill(Color.WHEAT);
+			g.fillRect(field.x*fieldWidth, field.y*fieldHeight, fieldWidth, fieldHeight);
 		}
 
 		g.save();

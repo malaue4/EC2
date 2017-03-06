@@ -8,7 +8,6 @@ import javafx.scene.paint.Color;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Class for the game logic
@@ -111,13 +110,13 @@ public class Game {
 	private void removeGameObjects(List<GameObject> gameObjects) {
 		for(GameObject gameObject : gameObjects){
 			this.gameObjects.remove(gameObject);
-			stageInfo.fieldMap.get(gameObject.getPosition()).setContents(null);
+			stageInfo.getFieldMap().get(gameObject.getPosition()).setContents(null);
 		}
 	}
 
 	public void newGame() {
-		stageInfo = new StageInfo(20);
-		setLevel(100);
+		stageInfo = new StageInfo(5);
+		setLevel(1);
 		setPaused(false);
 		setPlaying(true);
 	}
@@ -148,7 +147,7 @@ public class Game {
 	}
 
 	private void addGameObject(GameObject gameObject, Point point) {
-		stageInfo.fieldMap.get(point).setContents(gameObject);
+		stageInfo.getFieldMap().get(point).setContents(gameObject);
 		gameObjects.add(gameObject);
 	}
 

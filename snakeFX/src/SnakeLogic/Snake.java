@@ -11,7 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.Math.PI;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 
@@ -49,7 +48,7 @@ public class Snake implements GameObject {
 
 		Game game = Game.getInstance();
 		StageInfo stageInfo = game.getStageInfo();
-		Map<Point, Field> fieldMap = stageInfo.fieldMap;
+		Map<Point, Field> fieldMap = stageInfo.getFieldMap();
 		Field field = fieldMap.get(head.getCurrentPosition());
 		if(field!=null){
 			GameObject gameObject = field.getContents();
