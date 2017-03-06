@@ -8,6 +8,12 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
 public class Main extends Application {
 
 	@Override
@@ -27,6 +33,12 @@ public class Main extends Application {
 
 
 	public static void main(String[] args) {
+		int number = 324;
+		String string = String.valueOf(number);
+		System.out.println("string = " + string);
+		IntStream chars = string.chars();
+		System.out.println("chars = " + Arrays.toString(chars.toArray()));
+		System.out.println(chars.reduce(1,(a, b)->a*b));
 		launch(args);
 	}
 }
