@@ -28,7 +28,7 @@ public class DisappearingItem extends Item {
 	public void draw(GraphicsContext g, double fieldWidth, double fieldHeight, long now) {
 		g.save();
 		float t = (float)((now+phaseOffset) % phase)/phase;
-		g.translate(getX() * fieldWidth+fieldWidth/2, getY() * fieldHeight+fieldHeight/2);
+		g.translate(getPosition().x * fieldWidth+fieldWidth/2, getPosition().y * fieldHeight+fieldHeight/2);
 		g.scale(fieldWidth/25.0, fieldWidth/25.0);
 
 		g.setFill(Color.BLACK);

@@ -1,9 +1,22 @@
 package SnakeLogic;
 
+import javafx.scene.canvas.GraphicsContext;
+
+import java.awt.*;
+
 /**
- * Created by Ebbe Vang on 23-01-2017.
+ *
  */
 public interface GameObject {
+
 	void update();
+
+	void die();
+
+	boolean isDead();
+
+	Point getPosition();
+
+	void draw(GraphicsContext g, long now);
 
 }

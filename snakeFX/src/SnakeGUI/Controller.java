@@ -1,12 +1,11 @@
 package SnakeGUI;
 
 
+import SnakeLogic.Field;
 import SnakeLogic.Game;
-import SnakeLogic.Item;
+import SnakeLogic.GameObject;
 import com.sun.javafx.tk.Toolkit;
 import javafx.animation.AnimationTimer;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
@@ -92,21 +91,31 @@ public class Controller {
 			}
 		}
 
+		for(Field field : game.getStageInfo().getFieldMap().values()){
+			if(field.getContents() != null) g.setFill(Color.RED);
+			else g.setFill(Color.WHEAT);
+			g.fillRect(field.x*fieldWidth, field.y*fieldHeight, fieldWidth, fieldHeight);
+		}
+
+		g.save();
+		g.scale(fieldWidth, fieldHeight);
+
 		// draw items
-		for (Item item : game.items) {
-			item.draw(g, fieldWidth, fieldHeight, now);
+		for (GameObject gameObject : game.gameObjects) {
+			gameObject.draw(g, now);
 		}
 
 		// draw 'player'
 		if(game.player != null)
-			game.player.draw(g, fieldWidth, fieldHeight, now);
+			game.player.draw(g, now);
+		g.restore();
 	}
 
 	public void btnStartAction(ActionEvent event) {
 		System.out.println("btn clicked");
 		labelStatus.setText("playing");
-
 		game.newGame();
+		calculateFields();
 	}
 
 	public void btnPauseAction(ActionEvent event) {
