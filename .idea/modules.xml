@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/LinkedListIteratorExercise/LinkedListIteratorExercise.iml" filepath="$PROJECT_DIR$/LinkedListIteratorExercise/LinkedListIteratorExercise.iml" />
       <module fileurl="file://$PROJECT_DIR$/SerializeableExample/SerializeableExample.iml" filepath="$PROJECT_DIR$/SerializeableExample/SerializeableExample.iml" />
       <module fileurl="file://$PROJECT_DIR$/snakeFX/snakeFX.iml" filepath="$PROJECT_DIR$/snakeFX/snakeFX.iml" />
     </modules>
