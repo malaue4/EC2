@@ -1,18 +1,22 @@
 package MazeGUI;
 
 import MazeLogic.Game;
+import MazeLogic.Level;
 import com.sun.javafx.tk.Toolkit;
 import javafx.animation.AnimationTimer;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 
-import java.awt.*;
+import java.io.*;
 
 public class Controller {
 
@@ -37,7 +41,6 @@ public class Controller {
 	 */
 	public void initialize() {
 		calculateFields();
-		//game.newGame();
 
 		// Start and control game loop
 		new AnimationTimer() {
@@ -71,27 +74,10 @@ public class Controller {
 	 */
 	private void drawCanvas(long now) {
 		GraphicsContext g = canvas.getGraphicsContext2D();
-		game.draw(g);
-
-		// draw a background color
-		g.setFill(Color.GOLDENROD);
-		g.fillRect(0, 0, game.getStageInfo().width * fieldWidth, game.getStageInfo().height * fieldHeight);
-
-		for(int x=0; x<game.getStageInfo().width; x++){
-			for (int y = 0; y < game.getStageInfo().height; y++) {
-				if(game.getStageInfo().isWall(x, y))g.setFill(Color.RED);
-				else g.setFill(Color.WHEAT);
-				g.fillRect(x*fieldWidth, y*fieldHeight, fieldWidth, fieldHeight);
-			}
-		}
-
 		g.save();
 		g.scale(fieldWidth, fieldHeight);
 
-
-		// draw 'player'
-		/*if(game.player != null)
-			game.player.draw(g, now);*/
+		game.draw(g, now);
 		g.restore();
 	}
 
@@ -100,5 +86,76 @@ public class Controller {
 		labelStatus.setText("playing");
 		game.newGame();
 		calculateFields();
+	}
+
+	public void handleSave(ActionEvent actionEvent){
+		Level level = game.getStageInfo();
+
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Level Files", "*.ser"));
+		fileChooser.setTitle("Save As");
+		File file = fileChooser.showSaveDialog(null);
+
+		if(file==null) return;
+
+		try {
+			FileOutputStream fileOutputStream = new FileOutputStream(file);
+			ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+			objectOutputStream.writeObject(level);
+		} catch (FileNotFoundException e) {
+			System.err.println("The file wasn't found");
+			e.printStackTrace();
+		} catch (IOException e) {
+			System.err.println("An IO exception occurred");
+			e.printStackTrace();
+		}
+	}
+
+
+
+	public void handleLoad(ActionEvent actionEvent){
+
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Level Files", "*.ser"));
+		fileChooser.setTitle("Load Level");
+		File file = fileChooser.showOpenDialog(null);
+
+		if(file==null) return;
+
+
+		Level level = game.loadLevel(file);
+
+		if(level != null) {
+			game.setLevel(level);
+			calculateFields();
+		}
+	}
+
+	public void handleMousePressed(MouseEvent mouseEvent) {
+		System.out.printf("mouse pressed: (%s, %s)%n", mouseEvent.getX(), mouseEvent.getY());
+		X = (int) (mouseEvent.getX()/fieldWidth);
+		Y = (int) (mouseEvent.getY()/fieldHeight);
+
+	}
+
+	public void handleMouseReleased(MouseEvent mouseEvent) {
+		System.out.printf("mouse released: (%s, %s)%n", mouseEvent.getX(), mouseEvent.getY());
+	}
+
+	private static int X, Y;
+	public void handleMouseDragged(MouseEvent mouseEvent) {
+		//System.out.printf("mouse dragged: (%s, %s)%n", mouseEvent.getX(), mouseEvent.getY());
+		int x = (int) (mouseEvent.getX()/fieldWidth);
+		int y = (int) (mouseEvent.getY()/fieldHeight);
+		if(X!=x || Y!=y) {
+			System.out.printf("field: (%s, %s) -> (%s, %s)%n", X, Y, x, y);
+			if(mouseEvent.getButton() == MouseButton.PRIMARY){
+				game.getStageInfo().getField(x, y).link(game.getStageInfo().getField(X, Y));
+			} else if(mouseEvent.getButton() == MouseButton.SECONDARY){
+				game.getStageInfo().getField(x, y).unlink(game.getStageInfo().getField(X, Y));
+			}
+		}
+		X = x;
+		Y = y;
 	}
 }
