@@ -44,7 +44,6 @@ public class LinkedListSimple<T> {
         ListItem next;
     }
 
-    //TODO: add an iterator (as a nested class) to traverse through the items and make it available by a getIterator() method
     class MyIterator implements Iterator<T>{
         ListItem currentItem;
 
@@ -54,6 +53,7 @@ public class LinkedListSimple<T> {
 
         @Override
         public boolean hasNext() {
+        	//wrong: currentItem.next != null
 			return currentItem != null;
         }
 
