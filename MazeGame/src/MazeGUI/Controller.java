@@ -25,7 +25,6 @@ public class Controller {
 	private double fieldHeight;
 	private double fieldWidth;
 	private float refreshRate = 16 * 1000000;
-	private float drawRate = 16 * 1000000;
 
 	Game game = Game.getInstance();
 
@@ -39,16 +38,11 @@ public class Controller {
 		// Start and control game loop
 		new AnimationTimer() {
 			long lastUpdate = Toolkit.getToolkit().getMasterTimer().nanos();
-			long lastDraw = Toolkit.getToolkit().getMasterTimer().nanos();
 
 			public void handle(long now) {
 				if (now > lastUpdate + refreshRate) {
 					lastUpdate += refreshRate;
 					game.update(now);
-				}
-
-				if (now > lastDraw + drawRate) {
-					lastDraw += drawRate;
 					drawCanvas(now);
 				}
 			}

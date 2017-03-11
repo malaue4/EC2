@@ -21,10 +21,20 @@ public class Game {
 
 	private Game(){}
 
+	/**
+	 * updates the current game state
+	 * @param now the current time
+	 */
 	public void update(long now) {
 		player.update(now);
 	}
 
+
+	/**
+	 * draws the current game state
+	 * @param graphicsContext the context used to issue draw calls to the canvas
+	 * @param now the current time
+	 */
 	public void draw(GraphicsContext graphicsContext, long now) {
 		double width = level.getWidth();
 		double height = level.getHeight();
@@ -35,6 +45,11 @@ public class Game {
 		graphicsContext.setStroke(Color.BURLYWOOD);
 		graphicsContext.fillRect(0, 0, width, height);
 		graphicsContext.strokeRect(0, 0, width, height);
+
+		// draw the player
+		player.draw(graphicsContext, now);
+
+		// draw the walls
 		for(int x=0; x<level.width; x++){
 			for (int y = 0; y < level.height; y++) {
 				Level.Field field = level.getField(x, y);
@@ -49,10 +64,11 @@ public class Game {
 				}
 			}
 		}
-
-		player.draw(graphicsContext, now);
 	}
 
+	/**
+	 * start a new level
+	 */
 	public void newGame() {
 		/*
 		MazeGenerator generator = new RecursiveBacktracker();
@@ -61,6 +77,7 @@ public class Game {
 		player = new Player(getLevel().getField(0,0));
 		goal = new Goal(getLevel().getField(30-1, 20-1));
 		*/
+		player = new Player(level.getField(0,0));
 	}
 
 	/**
@@ -95,7 +112,7 @@ public class Game {
 	/**
 	 * Load a level from a file
 	 * @param file - the file to load the level from
-	 * @return
+	 * @return the loaded level, or null if an error occurred
 	 */
 	public Level loadLevel(File file) {
 		Level level = null;

@@ -133,7 +133,9 @@ public class Level extends Dimension implements Serializable{
 		 */
 		boolean isLinked(Field other){
 			return linkedFields.contains(other);
-		}/**
+		}
+
+		/**
 		 * Returns an ArrayList containing references to the Fields this Field is linked to
 		 * @return an ArrayList containing Fields
 		 */

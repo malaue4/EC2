@@ -1,5 +1,6 @@
 package MazeLogic;
 
+import com.sun.javafx.tk.Toolkit;
 import utility.Utility;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -14,21 +15,36 @@ public class Player implements GameObject{
 	private Level.Field currentPosition;
 	private Level.Field previousPosition;
 	private Level.Field nextPosition;
-	private long moveTime = 150*1000000;
+	/**
+	 * the time it takes for the player to move from one field to the next. Measured in nanoseconds
+	 */
+	private int moveTime = 150*1000000;
+	/**
+	 * the last time the player moved
+	 */
 	private long lastMove;
 
 	public Player(Level.Field start) {
 		currentPosition = start;
 		previousPosition = currentPosition;
+		lastMove = Toolkit.getToolkit().getMasterTimer().nanos();
 	}
 
+	/**
+	 * check if the player should move based on current time
+	 * @param now the current time
+	 */
 	public void update(long now){
-		while(now > lastMove){
+		if(now >= lastMove){
+			if(nextPosition==null)lastMove=now;
+			else lastMove += moveTime;
 			update();
-			lastMove += moveTime;
 		}
 	}
 
+	/**
+	 * updates the player's position. if nextPosition isn't null: previous -> current, current -> next, next -> null
+	 */
 	@Override
 	public void update() {
 		previousPosition = currentPosition;
@@ -53,9 +69,15 @@ public class Player implements GameObject{
 		return currentPosition;
 	}
 
+
+	/**
+	 * draws the player between it's current and previous position
+	 * @param graphicsContext the context used to issue draw calls to the canvas
+	 * @param now the current time
+	 */
 	@Override
 	public void draw(GraphicsContext graphicsContext, long now) {
-		float t = ((float)(now%moveTime))/moveTime;
+		float t = (moveTime-(lastMove-now)) /(float)moveTime;
 		Point2D interpolatedPosition = Utility.interpolateLinear(previousPosition, currentPosition, t);
 
 		graphicsContext.save();
@@ -72,9 +94,15 @@ public class Player implements GameObject{
 		graphicsContext.restore();
 	}
 
-	public void move(int x, int y) {
+	/**
+	 * Check if the field at the relative position dx, dy and the current field is linked, if they are the field is
+	 * marked as the next position, and the player will move there when it next updates/moves.
+	 * @param dx x coordinate relative to current position
+	 * @param dy y coordinate relative to current position
+	 */
+	public void move(int dx, int dy) {
 		for(Level.Field field : currentPosition.getLinkedFields()){
-			if(field.getX()==currentPosition.getX()+x && field.getY()==currentPosition.getY()+y){
+			if(field.getX()==currentPosition.getX()+dx && field.getY()==currentPosition.getY()+dy){
 				nextPosition = field;
 				break;
 			}
