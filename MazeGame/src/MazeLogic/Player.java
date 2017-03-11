@@ -56,11 +56,11 @@ public class Player implements GameObject{
 	@Override
 	public void draw(GraphicsContext graphicsContext, long now) {
 		float t = ((float)(now%moveTime))/moveTime;
-		Point2D interpolatedPosition = Utility.interpolateLinear(currentPosition, previousPosition, t);
+		Point2D interpolatedPosition = Utility.interpolateLinear(previousPosition, currentPosition, t);
 
 		graphicsContext.save();
 		graphicsContext.setFill(Color.RED);
-		for(Level.Field field : currentPosition.linkedFields){
+		for(Level.Field field : currentPosition.getLinkedFields()){
 			graphicsContext.fillOval(0.45+field.getX(),0.45+field.getY(),0.1,0.1);
 		}
 		graphicsContext.translate(interpolatedPosition.getX(), interpolatedPosition.getY());
@@ -73,7 +73,7 @@ public class Player implements GameObject{
 	}
 
 	public void move(int x, int y) {
-		for(Level.Field field : currentPosition.linkedFields){
+		for(Level.Field field : currentPosition.getLinkedFields()){
 			if(field.getX()==currentPosition.getX()+x && field.getY()==currentPosition.getY()+y){
 				nextPosition = field;
 				break;

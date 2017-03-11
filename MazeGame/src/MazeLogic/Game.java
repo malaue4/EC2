@@ -1,8 +1,5 @@
 package MazeLogic;
 
-import com.sun.javafx.tk.Toolkit;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
@@ -15,8 +12,6 @@ import java.io.*;
 public class Game {
 	private static Game instance = new Game();
 
-
-	private BooleanProperty playing = new SimpleBooleanProperty(false);
 	private Level level;
 	private Player player;
 
@@ -24,25 +19,10 @@ public class Game {
 		return instance;
 	}
 
-	private Game(){
-		level = loadLevel(new File(getClass().getResource("/default.ser").getPath()));
-		player = new Player(level.getField(0,0));
-	}
+	private Game(){}
 
 	public void update(long now) {
 		player.update(now);
-	}
-
-	public boolean isPlaying() {
-		return playing.get();
-	}
-
-	public BooleanProperty playingProperty() {
-		return playing;
-	}
-
-	public void setPlaying(boolean playing) {
-		this.playing.set(playing);
 	}
 
 	public void draw(GraphicsContext graphicsContext, long now) {
@@ -73,14 +53,20 @@ public class Game {
 		player.draw(graphicsContext, now);
 	}
 
-	public Level getStageInfo() {
-		return level;
-	}
-
 	public void newGame() {
-		level = new Level(10, 10);
+		/*
+		MazeGenerator generator = new RecursiveBacktracker();
+		generator.setSize(30, 20);
+		setLevel(generator.generateMaze());
+		player = new Player(getLevel().getField(0,0));
+		goal = new Goal(getLevel().getField(30-1, 20-1));
+		*/
 	}
 
+	/**
+	 * Handles keypresses, tells the player where to move
+	 * @param code - the code of the key pressed
+	 */
 	public void keyPressed(KeyCode code) {
 		switch (code){
 			case LEFT:
@@ -102,6 +88,15 @@ public class Game {
 		this.level = level;
 	}
 
+	public Level getLevel() {
+		return level;
+	}
+
+	/**
+	 * Load a level from a file
+	 * @param file - the file to load the level from
+	 * @return
+	 */
 	public Level loadLevel(File file) {
 		Level level = null;
 		try {
@@ -119,5 +114,13 @@ public class Game {
 			e.printStackTrace();
 		}
 		return level;
+	}
+
+	/**
+	 * Load the title level
+	 */
+	public void loadTitleLevel() {
+		level = loadLevel(new File(getClass().getResource("/default.ser").getPath()));
+		player = new Player(level.getField(0,0));
 	}
 }

@@ -6,11 +6,25 @@ import java.util.ArrayList;
 
 import static java.lang.Math.abs;
 
+/**
+ * Represents a level/maze, it is made up of many fields which may or may not be linked to one another
+ */
 public class Level extends Dimension implements Serializable{
+	private static final long serialVersionUID = 2483211102882312031L;
+	/**
+	 * A 2 dimensional array containing all the fields of the level
+	 * @link Field
+	 */
 	private Field[][] fields;
 
-	Field goal, start;
-
+	/**
+	 * Constructs a level with the given with and height, and initializes all the fields. By default none of the fields
+	 * are linked to one another
+	 *
+	 * @link Field
+	 * @param width width of the level
+	 * @param height height of the level
+	 */
 	Level(int width, int height){
 		super(width, height); // Skal man sikre sig at width & height ikke er < 1?
 		fields = new Field[width][height];
@@ -21,19 +35,46 @@ public class Level extends Dimension implements Serializable{
 		}
 	}
 
+	/**
+	 * Returns the Field at the given coordinates
+	 * @link Field
+	 * @param x the horizontal coordinate of the Field
+	 * @param y the vertical coordinate of the Field
+	 * @return the Field or null if it doesn't exist
+	 */
 	public Field getField(int x, int y){
 		if(x<0 || y<0 || x >= width || y >= height) return null;
 		return fields[x][y];
 	}
 
+	/**
+	 * Returns the neighbours of the given Field, regardless if they are linked or not.
+	 * Only the cardinal directions are fetched.
+	 *
+	 * @link Field
+	 * @param field the Field to check
+	 * @return list of neighbouring Fields
+	 */
+	ArrayList<Field> getNeighbours(Field field){
+		return getNeighbours(field.x, field.y);
+	}
+
+	/**
+	 * Returns the neighbours of the Field at the given coordinates, regardless if they are linked or not.
+	 * Only the cardinal directions are fetched.
+	 *
+	 * @link Field
+	 * @param x the horizontal coordinate of the Field
+	 * @param y the vertical coordinate of the Field
+	 * @return list of neighbouring Fields
+	 */
 	ArrayList<Field> getNeighbours(int x, int y){
 		ArrayList<Field> neighbours = new ArrayList<>(4);
 		int dx=-1;
 		int dy=0;
-		Field center = getField(x, y);
 		for (int i = 0; i < 4; i++) {
 			Field other = getField(x+dx, y+dy);
-			if(other != null && center.isLinked(other))
+			if(other != null)
 				neighbours.add(other);
 
 			int dn = dx;
@@ -43,12 +84,30 @@ public class Level extends Dimension implements Serializable{
 		return neighbours;
 	}
 
+
+	/**
+	 * A field in the level, it has position and knows which fields it is linked to
+	 */
 	public class Field extends Point{
-		ArrayList<Field> linkedFields = new ArrayList<>();
+		private static final long serialVersionUID = 4523511842502318683L;
+		/**
+		 * A list of the Fields this Field is linked to
+		 */
+		private ArrayList<Field> linkedFields = new ArrayList<>();
+
+		/**
+		 * Constructs and initializes a field at the specified (x,y) location in the coordinate space.
+		 * @param x the horizontal coordinate
+		 * @param y the vertical coordinate
+		 */
 		Field(int x, int y) {
 			super(x, y);
 		}
 
+		/**
+		 * Links this Field to the other Field, if it isn't already
+		 * @param other the field to link to
+		 */
 		public void link(Field other){
 			if(abs(other.x-x)+abs(other.y-y)==1 && !linkedFields.contains(other)){
 				linkedFields.add(other);
@@ -56,6 +115,10 @@ public class Level extends Dimension implements Serializable{
 			}
 		}
 
+		/**
+		 * Unlinks this Field from the other Field, if it isn't already
+		 * @param other the field to unlink from
+		 */
 		public void unlink(Field other){
 			if(linkedFields.contains(other)){
 				linkedFields.remove(other);
@@ -63,10 +126,17 @@ public class Level extends Dimension implements Serializable{
 			}
 		}
 
+		/**
+		 * Return whether or not this Field and the other Field is linked
+		 * @param other the Field to check
+		 * @return a boolean
+		 */
 		boolean isLinked(Field other){
 			return linkedFields.contains(other);
-		}
-
+		}/**
+		 * Returns an ArrayList containing references to the Fields this Field is linked to
+		 * @return an ArrayList containing Fields
+		 */
 		public ArrayList<Field> getLinkedFields() {
 			return linkedFields;
 		}

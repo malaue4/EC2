@@ -10,20 +10,13 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
 import java.io.*;
 
 public class Controller {
-
-	@FXML
-	Label labelGameSpeed;
-	@FXML
-	ProgressBar progressItems;
 	@FXML
 	Label labelStatus;
 	@FXML
@@ -40,6 +33,7 @@ public class Controller {
 	 * Executed when JavaFX is initialized. Used to setup the Snake game
 	 */
 	public void initialize() {
+		game.loadTitleLevel();
 		calculateFields();
 
 		// Start and control game loop
@@ -65,12 +59,13 @@ public class Controller {
 	 * Calculate height and width of each field
 	 */
 	private void calculateFields() {
-		fieldHeight = canvas.getHeight() / game.getStageInfo().height;
-		fieldWidth = canvas.getWidth() / game.getStageInfo().width;
+		fieldHeight = canvas.getHeight() / game.getLevel().height;
+		fieldWidth = canvas.getWidth() / game.getLevel().width;
 	}
 
 	/**
 	 * Draw the canvas - used in the gameloop
+	 * @param now the current time in nanoseconds
 	 */
 	private void drawCanvas(long now) {
 		GraphicsContext g = canvas.getGraphicsContext2D();
@@ -81,15 +76,21 @@ public class Controller {
 		g.restore();
 	}
 
-	public void btnStartAction(ActionEvent event) {
-		System.out.println("btn clicked");
-		labelStatus.setText("playing");
+	/**
+	 * Starts a new game, and recalculates field size
+	 */
+	public void handleStart() {
+		//labelStatus.setText("playing");
 		game.newGame();
 		calculateFields();
 	}
 
-	public void handleSave(ActionEvent actionEvent){
-		Level level = game.getStageInfo();
+	/**
+	 * Opens a file chooser to pick a file to save the current level to
+	 *
+	 */
+	public void handleSave(){
+		Level level = game.getLevel();
 
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Level Files", "*.ser"));
@@ -111,9 +112,11 @@ public class Controller {
 		}
 	}
 
-
-
-	public void handleLoad(ActionEvent actionEvent){
+	/**
+	 * Opens a file chooser to pick a level to load
+	 *
+	 */
+	public void handleLoad(){
 
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Level Files", "*.ser"));
@@ -133,29 +136,11 @@ public class Controller {
 
 	public void handleMousePressed(MouseEvent mouseEvent) {
 		System.out.printf("mouse pressed: (%s, %s)%n", mouseEvent.getX(), mouseEvent.getY());
-		X = (int) (mouseEvent.getX()/fieldWidth);
-		Y = (int) (mouseEvent.getY()/fieldHeight);
-
 	}
-
 	public void handleMouseReleased(MouseEvent mouseEvent) {
 		System.out.printf("mouse released: (%s, %s)%n", mouseEvent.getX(), mouseEvent.getY());
 	}
-
-	private static int X, Y;
 	public void handleMouseDragged(MouseEvent mouseEvent) {
-		//System.out.printf("mouse dragged: (%s, %s)%n", mouseEvent.getX(), mouseEvent.getY());
-		int x = (int) (mouseEvent.getX()/fieldWidth);
-		int y = (int) (mouseEvent.getY()/fieldHeight);
-		if(X!=x || Y!=y) {
-			System.out.printf("field: (%s, %s) -> (%s, %s)%n", X, Y, x, y);
-			if(mouseEvent.getButton() == MouseButton.PRIMARY){
-				game.getStageInfo().getField(x, y).link(game.getStageInfo().getField(X, Y));
-			} else if(mouseEvent.getButton() == MouseButton.SECONDARY){
-				game.getStageInfo().getField(x, y).unlink(game.getStageInfo().getField(X, Y));
-			}
-		}
-		X = x;
-		Y = y;
+		System.out.printf("mouse dragged: (%s, %s)%n", mouseEvent.getX(), mouseEvent.getY());
 	}
 }
