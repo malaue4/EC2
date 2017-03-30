@@ -23,6 +23,7 @@ public class Player implements GameObject{
 	 * the last time the player moved
 	 */
 	private long lastMove;
+	private Color color = Color.MEDIUMAQUAMARINE;
 
 	public Player(Level.Field start) {
 		currentPosition = start;
@@ -86,7 +87,7 @@ public class Player implements GameObject{
 			graphicsContext.fillOval(0.45+field.getX(),0.45+field.getY(),0.1,0.1);
 		}
 		graphicsContext.translate(interpolatedPosition.getX(), interpolatedPosition.getY());
-		graphicsContext.setFill(Color.OLDLACE);
+		graphicsContext.setFill(color);
 		graphicsContext.fillOval(0,0,1,1);
 		graphicsContext.setFill(Color.BLACK);
 		graphicsContext.fillOval(0.35,0.2,0.1,0.2);
