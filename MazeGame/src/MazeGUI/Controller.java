@@ -33,6 +33,9 @@ public class Controller {
 	 */
 	public void initialize() {
 		game.loadTitleLevel();
+
+
+
 		calculateFields();
 
 		// Start and control game loop

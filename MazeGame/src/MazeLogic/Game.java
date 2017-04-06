@@ -14,6 +14,7 @@ public class Game {
 
 	private Level level;
 	private Player player;
+	private Ghost rambler;
 
 	public static Game getInstance() {
 		return instance;
@@ -27,6 +28,7 @@ public class Game {
 	 */
 	public void update(long now) {
 		player.update(now);
+		rambler.update(now);
 	}
 
 
@@ -48,6 +50,7 @@ public class Game {
 
 		// draw the player
 		player.draw(graphicsContext, now);
+		rambler.draw(graphicsContext, now);
 
 		// draw the walls
 		for(int x=0; x<level.width; x++){
@@ -139,5 +142,7 @@ public class Game {
 	public void loadTitleLevel() {
 		level = loadLevel(new File(getClass().getResource("/default.ser").getPath()));
 		player = new Player(level.getField(0,0));
+		rambler = new Ghost(level.getField(level.width-1, level.height-1));
+		rambler.setColor(Color.DARKRED);
 	}
 }

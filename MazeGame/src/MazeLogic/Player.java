@@ -109,4 +109,52 @@ public class Player implements GameObject{
 			}
 		}
 	}
+
+	public void setMoveTime(int moveTime) {
+		this.moveTime = moveTime;
+	}
+
+	public int getMoveTime() {
+		return moveTime;
+	}
+
+	public void setCurrentPosition(Level.Field currentPosition) {
+		this.currentPosition = currentPosition;
+	}
+
+	public void setPreviousPosition(Level.Field previousPosition) {
+		this.previousPosition = previousPosition;
+	}
+
+	public long getLastMove() {
+		return lastMove;
+	}
+
+	public void setLastMove(long lastMove) {
+		this.lastMove = lastMove;
+	}
+
+	public Color getColor() {
+		return color;
+	}
+
+	public Level.Field getCurrentPosition() {
+		return currentPosition;
+	}
+
+	public Level.Field getPreviousPosition() {
+		return previousPosition;
+	}
+
+	public Level.Field getNextPosition() {
+		return nextPosition;
+	}
+
+	public void setNextPosition(Level.Field nextPosition) {
+		this.nextPosition = nextPosition;
+	}
+
+	public void setColor(Color color) {
+		this.color = color;
+	}
 }
