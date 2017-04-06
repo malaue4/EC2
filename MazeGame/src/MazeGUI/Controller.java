@@ -4,12 +4,13 @@ import MazeLogic.Game;
 import MazeLogic.Level;
 import com.sun.javafx.tk.Toolkit;
 import javafx.animation.AnimationTimer;
+import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -17,6 +18,10 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import java.io.*;
 
 public class Controller {
+	@FXML
+	Button buttonSave;
+	@FXML
+	Label labelLevel;
 	@FXML
 	Label labelStatus;
 	@FXML
@@ -35,8 +40,11 @@ public class Controller {
 		game.loadTitleLevel();
 
 
-
 		calculateFields();
+
+		labelLevel.textProperty().bind(
+				Bindings.createStringBinding(() -> game.levelProperty.get().getTitle(), game.levelProperty));
+		labelStatus.textProperty().set(game.mode.toString());
 
 		// Start and control game loop
 		new AnimationTimer() {
@@ -83,7 +91,7 @@ public class Controller {
 	}
 
 	/**
-	 * Opens a file chooser to pick a file to save the current level to
+	 * Opens a file chooser to pick a file to save the current levelProperty to
 	 *
 	 */
 	public void handleSave(){
@@ -110,7 +118,7 @@ public class Controller {
 	}
 
 	/**
-	 * Opens a file chooser to pick a level to load
+	 * Opens a file chooser to pick a levelProperty to load
 	 *
 	 */
 	public void handleLoad(){
@@ -131,13 +139,48 @@ public class Controller {
 		}
 	}
 
+
 	public void handleMousePressed(MouseEvent mouseEvent) {
-		System.out.printf("mouse pressed: (%s, %s)%n", mouseEvent.getX(), mouseEvent.getY());
+		int x = (int) (mouseEvent.getX()/fieldWidth);
+		int y = (int) (mouseEvent.getY()/fieldHeight);
+		System.out.printf("mouse pressed: (%s, %s)%n", x, y);
+		if(game.mode == Game.modes.edit){
+			game.getEditor().placeMarker(x,y);
+		}
 	}
 	public void handleMouseReleased(MouseEvent mouseEvent) {
-		System.out.printf("mouse released: (%s, %s)%n", mouseEvent.getX(), mouseEvent.getY());
+		int x = (int) (mouseEvent.getX()/fieldWidth);
+		int y = (int) (mouseEvent.getY()/fieldHeight);
+		System.out.printf("mouse released: (%s, %s)%n", x, y);
+		if(game.mode == Game.modes.edit){
+			//editor.carveWall(x,y);
+		}
 	}
 	public void handleMouseDragged(MouseEvent mouseEvent) {
-		System.out.printf("mouse dragged: (%s, %s)%n", mouseEvent.getX(), mouseEvent.getY());
+		int x = (int) (mouseEvent.getX()/fieldWidth);
+		int y = (int) (mouseEvent.getY()/fieldHeight);
+		System.out.printf("mouse dragged: (%s, %s)%n", x, y);
+		if(game.mode == Game.modes.edit){
+			LevelEditor editor = game.getEditor();
+			if(mouseEvent.isPrimaryButtonDown())
+				editor.carveWall(x, y);
+			else if(mouseEvent.isSecondaryButtonDown())
+				editor.placeWall(x, y);
+			editor.placeMarker(x,y);
+		}
+	}
+
+	public void handleEdit(ActionEvent actionEvent) {
+		if(game.mode == Game.modes.edit){
+			game.mode = Game.modes.play;
+			buttonSave.setDisable(true);
+		} else {
+			game.mode = Game.modes.edit;
+			buttonSave.setDisable(false);
+		}
+	}
+
+	public void handleClearWalls(ActionEvent actionEvent) {
+		game.getEditor().clear(false);
 	}
 }

@@ -1,36 +1,40 @@
 package MazeLogic;
 
-import java.awt.*;
+import java.awt.Point;
+import java.awt.Dimension;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static java.lang.Math.abs;
 
 /**
- * Represents a level/maze, it is made up of many fields which may or may not be linked to one another
+ * Represents a levelProperty/maze, it is made up of many fields which may or may not be linked to one another
  */
 public class Level extends Dimension implements Serializable{
 	private static final long serialVersionUID = 2483211102882312031L;
 	/**
-	 * A 2 dimensional array containing all the fields of the level
+	 * A 2 dimensional array containing all the fields of the levelProperty
 	 * @link Field
 	 */
-	private Field[][] fields;
+	private Field[][] mFields;
+	private String mTitle = "";
 
 	/**
-	 * Constructs a level with the given with and height, and initializes all the fields. By default none of the fields
+	 * Constructs a levelProperty with the given with and height, and initializes all the fields. By default none of the fields
 	 * are linked to one another
 	 *
 	 * @link Field
-	 * @param width width of the level
-	 * @param height height of the level
+	 * @param width width of the levelProperty
+	 * @param height height of the levelProperty
 	 */
 	Level(int width, int height){
 		super(width, height); // Skal man sikre sig at width & height ikke er < 1?
-		fields = new Field[width][height];
+		mFields = new Field[width][height];
 		for(int x=0; x<width; x++){
 			for (int y = 0; y < height; y++) {
-				fields[x][y] = new Field(x, y);
+				mFields[x][y] = new Field(x, y);
 			}
 		}
 	}
@@ -44,7 +48,7 @@ public class Level extends Dimension implements Serializable{
 	 */
 	public Field getField(int x, int y){
 		if(x<0 || y<0 || x >= width || y >= height) return null;
-		return fields[x][y];
+		return mFields[x][y];
 	}
 
 	/**
@@ -55,7 +59,7 @@ public class Level extends Dimension implements Serializable{
 	 * @param field the Field to check
 	 * @return list of neighbouring Fields
 	 */
-	ArrayList<Field> getNeighbours(Field field){
+	public ArrayList<Field> getNeighbours(Field field){
 		return getNeighbours(field.x, field.y);
 	}
 
@@ -68,7 +72,7 @@ public class Level extends Dimension implements Serializable{
 	 * @param y the vertical coordinate of the Field
 	 * @return list of neighbouring Fields
 	 */
-	ArrayList<Field> getNeighbours(int x, int y){
+	public ArrayList<Field> getNeighbours(int x, int y){
 		ArrayList<Field> neighbours = new ArrayList<>(4);
 		int dx=-1;
 		int dy=0;
@@ -84,9 +88,24 @@ public class Level extends Dimension implements Serializable{
 		return neighbours;
 	}
 
+	public String getTitle() {
+		return mTitle;
+	}
+
+	public void setTitle(String title) {
+		mTitle = title;
+	}
+
+	public List<Field> getFields() {
+		List<Field> fields = new ArrayList<>();
+		for(Field[] fieldRow : mFields){
+			Collections.addAll(fields, fieldRow);
+		}
+		return fields;
+	}
 
 	/**
-	 * A field in the level, it has position and knows which fields it is linked to
+	 * A field in the levelProperty, it has position and knows which fields it is linked to
 	 */
 	public class Field extends Point{
 		private static final long serialVersionUID = 4523511842502318683L;

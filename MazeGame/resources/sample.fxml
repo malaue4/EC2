@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.FlowPane?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="440.0" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MazeGUI.Controller">
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="480.0" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.60" fx:controller="MazeGUI.Controller">
     <center>
         <Canvas id="canvas" fx:id="canvas" focusTraversable="true" height="400.0" onMouseDragged="#handleMouseDragged" onMousePressed="#handleMousePressed" onMouseReleased="#handleMouseReleased" width="600.0" BorderPane.alignment="CENTER" />
     </center>
@@ -25,8 +25,17 @@
                 </FlowPane.margin>
             </Label>
             <Separator orientation="VERTICAL" prefHeight="40" />
-         <Button mnemonicParsing="false" onAction="#handleSave" text="Save" />
-         <Button mnemonicParsing="false" onAction="#handleLoad" text="Load" />
+            <Button mnemonicParsing="false" onAction="#handleLoad" text="Load" />
+            <Button mnemonicParsing="false" fx:id="buttonSave" onAction="#handleSave" text="Save" disable="true"/>
+            <Label text="Level: "/><Label fx:id="labelLevel"/>
+            <Button mnemonicParsing="false" onAction="#handleEdit" text="Edit" />
         </FlowPane>
     </top>
+
+    <bottom>
+        <FlowPane maxHeight="40.0" prefHeight="40.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+            <Label text=""/>
+            <Button mnemonicParsing="false" onAction="#handleClearWalls" text="Clear Walls" />
+        </FlowPane>
+    </bottom>
 </BorderPane>

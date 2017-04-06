@@ -1,10 +1,14 @@
 package MazeLogic;
 
+import MazeGUI.LevelEditor;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 
+import java.awt.*;
 import java.io.*;
+import java.util.ArrayList;
 
 /**
  * The main game class
@@ -12,9 +16,13 @@ import java.io.*;
 public class Game {
 	private static Game instance = new Game();
 
-	private Level level;
+	public SimpleObjectProperty<Level> levelProperty = new SimpleObjectProperty<>(this, "levelProperty");
+
 	private Player player;
-	private Ghost rambler;
+	private ArrayList<Ghost> mGhosts = new ArrayList<>();
+	private LevelEditor editor;
+
+	public Game.modes mode = Game.modes.title;
 
 	public static Game getInstance() {
 		return instance;
@@ -28,7 +36,9 @@ public class Game {
 	 */
 	public void update(long now) {
 		player.update(now);
-		rambler.update(now);
+		for(Ghost ghost : mGhosts){
+			ghost.update(now);
+		}
 	}
 
 
@@ -38,8 +48,8 @@ public class Game {
 	 * @param now the current time
 	 */
 	public void draw(GraphicsContext graphicsContext, long now) {
-		double width = level.getWidth();
-		double height = level.getHeight();
+		double width = levelProperty.get().getWidth();
+		double height = levelProperty.get().getHeight();
 		graphicsContext.setLineWidth(0.1);
 
 		// draw a background color
@@ -50,27 +60,36 @@ public class Game {
 
 		// draw the player
 		player.draw(graphicsContext, now);
-		rambler.draw(graphicsContext, now);
+		for(Ghost ghost : mGhosts){
+			ghost.draw(graphicsContext, now);
+		}
 
 		// draw the walls
-		for(int x=0; x<level.width; x++){
-			for (int y = 0; y < level.height; y++) {
-				Level.Field field = level.getField(x, y);
-				if(field ==null){
+		for(int x = 0; x< levelProperty.get().width; x++){
+			for (int y = 0; y < levelProperty.get().height; y++) {
+				Level.Field field = levelProperty.get().getField(x, y);
+				if(field == null){
 					graphicsContext.setFill(Color.RED);
 					graphicsContext.fillRect(x, y, 1, 1);
 				} else {
-					Level.Field right = level.getField(x+1, y);
-					Level.Field down = level.getField(x, y+1);
+					Level.Field right = levelProperty.get().getField(x+1, y);
+					Level.Field down = levelProperty.get().getField(x, y+1);
 					if(!field.isLinked(right)) graphicsContext.strokeLine(x+1, y, x+1, y+1);
 					if(!field.isLinked(down)) graphicsContext.strokeLine(x, y+1, x+1, y+1);
+					if(mode == modes.edit){
+						Point marker = getEditor().getMarker();
+						if(field.getLocation().equals(marker)){
+							graphicsContext.setFill(Color.rgb(234,23,234, 0.4));
+							graphicsContext.fillRect(x, y, 1, 1);
+						}
+					}
 				}
 			}
 		}
 	}
 
 	/**
-	 * start a new level
+	 * start a new levelProperty
 	 */
 	public void newGame() {
 		/*
@@ -80,7 +99,7 @@ public class Game {
 		player = new Player(getLevel().getField(0,0));
 		goal = new Goal(getLevel().getField(30-1, 20-1));
 		*/
-		player = new Player(level.getField(0,0));
+		player = new Player(levelProperty.get().getField(0,0));
 	}
 
 	/**
@@ -105,17 +124,17 @@ public class Game {
 	}
 
 	public void setLevel(Level level) {
-		this.level = level;
+		this.levelProperty.set(level);
 	}
 
 	public Level getLevel() {
-		return level;
+		return levelProperty.get();
 	}
 
 	/**
-	 * Load a level from a file
-	 * @param file - the file to load the level from
-	 * @return the loaded level, or null if an error occurred
+	 * Load a levelProperty from a file
+	 * @param file - the file to load the levelProperty from
+	 * @return the loaded levelProperty, or null if an error occurred
 	 */
 	public Level loadLevel(File file) {
 		Level level = null;
@@ -133,6 +152,9 @@ public class Game {
 			System.err.println("The corresponding class could not be found");
 			e.printStackTrace();
 		}
+		if(level == null){
+			level = new Level(15, 10);
+		}
 		return level;
 	}
 
@@ -140,9 +162,34 @@ public class Game {
 	 * Load the title level
 	 */
 	public void loadTitleLevel() {
-		level = loadLevel(new File(getClass().getResource("/default.ser").getPath()));
-		player = new Player(level.getField(0,0));
-		rambler = new Ghost(level.getField(level.width-1, level.height-1));
+		levelProperty.set(loadLevel(new File(getClass().getResource("/default").getPath())));
+		Level level = levelProperty.get();
+		player = new Player(level.getField(7,5));
+		Ghost rambler = new Ghost(level.getField(0, 0));
+		Ghost scrambler = new Ghost(level.getField(0, level.height-1));
+		Ghost ambler = new Ghost(level.getField(level.width-1, 0));
+		Ghost johhny = new Ghost(level.getField(level.width-1, level.height-1));
 		rambler.setColor(Color.DARKRED);
+		scrambler.setColor(Color.DARKBLUE);
+		ambler.setColor(Color.DARKGOLDENROD);
+		johhny.setColor(Color.DARKORANGE);
+		mGhosts.add(rambler);
+		mGhosts.add(scrambler);
+		mGhosts.add(ambler);
+		mGhosts.add(johhny);
+		mode = modes.title;
+	}
+
+	public LevelEditor getEditor() {
+		if(editor == null){
+			editor = new LevelEditor(this);
+		}
+		return editor;
+	}
+
+	public enum modes {
+		title,
+		play,
+		edit
 	}
 }

@@ -26,12 +26,14 @@ public class Ghost extends Player {
 	 */
 	public void update(long now){
 		if(getNextPosition() == null){
-			previousField = getCurrentPosition();
+			previousField = getPreviousPosition();
 			List<Level.Field> fieldList = new ArrayList<>(getCurrentPosition().getLinkedFields());
 			if(fieldList.size()>1){
 				fieldList.remove(previousField);
 			}
-			setNextPosition(fieldList.get(new Random().nextInt(fieldList.size())));
+			if(fieldList.size()>0) {
+				setNextPosition(fieldList.get(new Random().nextInt(fieldList.size())));
+			}
 		}
 		super.update(now);
 	}
@@ -54,14 +56,22 @@ public class Ghost extends Player {
 			graphicsContext.fillOval(0.45+field.getX(),0.45+field.getY(),0.1,0.1);
 		}
 		graphicsContext.translate(interpolatedPosition.getX(), interpolatedPosition.getY());
+		//body
 		graphicsContext.setFill(getColor());
-		graphicsContext.fillOval(0,0,1,1);
+		graphicsContext.fillOval(0,0,1,.8);
+		graphicsContext.fillRect(0,0.5,1,0.4);
+		graphicsContext.fillOval(0,0.8,0.3,0.2);
+		graphicsContext.fillOval(0.35,0.8,0.3,0.2);
+		graphicsContext.fillOval(0.7,0.8,0.3,0.2);
+		//eye whites
 		graphicsContext.setFill(Color.WHITESMOKE);
 		graphicsContext.fillOval(0.3,0.2,0.2,0.3);
 		graphicsContext.fillOval(0.5,0.2,0.2,0.3);
+		//pupils
 		graphicsContext.setFill(Color.BLACK);
 		graphicsContext.fillOval(0.35,0.2,0.1,0.2);
 		graphicsContext.fillOval(0.55,0.2,0.1,0.2);
+
 		graphicsContext.restore();
 	}
 }
