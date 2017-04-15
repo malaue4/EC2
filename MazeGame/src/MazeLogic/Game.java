@@ -1,10 +1,12 @@
 package MazeLogic;
 
 import MazeGUI.LevelEditor;
+import entities.*;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
+import utility.Direction;
 
 import java.awt.*;
 import java.io.*;
@@ -18,8 +20,9 @@ public class Game {
 
 	public SimpleObjectProperty<Level> levelProperty = new SimpleObjectProperty<>(this, "levelProperty");
 
-	private Player player;
-	private ArrayList<Ghost> mGhosts = new ArrayList<>();
+	private PackMan player;
+	private ArrayList<Ghost> ghosts = new ArrayList<>();
+	private ArrayList<Pellet> pellets = new ArrayList<>();
 	private LevelEditor editor;
 
 	public Game.modes mode = Game.modes.title;
@@ -36,7 +39,7 @@ public class Game {
 	 */
 	public void update(long now) {
 		player.update(now);
-		for(Ghost ghost : mGhosts){
+		for(Ghost ghost : ghosts){
 			ghost.update(now);
 		}
 	}
@@ -48,8 +51,9 @@ public class Game {
 	 * @param now the current time
 	 */
 	public void draw(GraphicsContext graphicsContext, long now) {
-		double width = levelProperty.get().getWidth();
-		double height = levelProperty.get().getHeight();
+		Level level = getLevel();
+		double width = level.getWidth();
+		double height = level.getHeight();
 		graphicsContext.setLineWidth(0.1);
 
 		// draw a background color
@@ -58,22 +62,29 @@ public class Game {
 		graphicsContext.fillRect(0, 0, width, height);
 		graphicsContext.strokeRect(0, 0, width, height);
 
+		for(Pellet pellet : pellets){
+			pellet.draw(graphicsContext, now);
+		}
 		// draw the player
 		player.draw(graphicsContext, now);
-		for(Ghost ghost : mGhosts){
+		for(Ghost ghost : ghosts){
 			ghost.draw(graphicsContext, now);
 		}
 
+
+
 		// draw the walls
-		for(int x = 0; x< levelProperty.get().width; x++){
-			for (int y = 0; y < levelProperty.get().height; y++) {
-				Level.Field field = levelProperty.get().getField(x, y);
+		// jeg ville gerne kunne tegne væggene en gang, og så genbruge dem, men det virker ikke sådan ligetil at få en
+		// buffer man kan tegne til...
+		for(int x = 0; x< level.width; x++){
+			for (int y = 0; y < level.height; y++) {
+				Level.Field field = level.getField(x, y);
 				if(field == null){
 					graphicsContext.setFill(Color.RED);
 					graphicsContext.fillRect(x, y, 1, 1);
 				} else {
-					Level.Field right = levelProperty.get().getField(x+1, y);
-					Level.Field down = levelProperty.get().getField(x, y+1);
+					Level.Field right = level.getField(x+1, y);
+					Level.Field down = level.getField(x, y+1);
 					if(!field.isLinked(right)) graphicsContext.strokeLine(x+1, y, x+1, y+1);
 					if(!field.isLinked(down)) graphicsContext.strokeLine(x, y+1, x+1, y+1);
 					if(mode == modes.edit){
@@ -99,7 +110,32 @@ public class Game {
 		player = new Player(getLevel().getField(0,0));
 		goal = new Goal(getLevel().getField(30-1, 20-1));
 		*/
-		player = new Player(levelProperty.get().getField(0,0));
+		final Level level = getLevel();
+		player = new PackMan(level.getField(level.width/2, level.height/3));
+		pellets.clear();
+		ghosts.clear();
+
+		Ghost rambler = new Ghost(level.getField(6, 4));
+		Ghost scrambler = new Ghost(level.getField(6, 6));
+		Ghost ambler = new Ghost(level.getField(8, 4));
+		Ghost johhny = new Ghost(level.getField(8, 6));
+		rambler.setColor(Color.DARKRED);
+		scrambler.setColor(Color.DARKBLUE);
+		ambler.setColor(Color.DARKGOLDENROD);
+		johhny.setColor(Color.DARKORANGE);
+		ghosts.add(rambler);
+		ghosts.add(scrambler);
+		ghosts.add(ambler);
+		ghosts.add(johhny);
+		for(int i = 0; i< level.width * level.height; i++){
+			final int x = i % level.width;
+			final int y = i / level.width;
+			if(((x ==0 || x == level.width-1) && (y == 0 || y == level.height-1))){
+				pellets.add(new PowerPellet(Color.YELLOWGREEN, x, y));
+			} else if (x < 6 || x > 8 || y < 4 || y > 6) {
+				pellets.add(new Pellet(Color.YELLOWGREEN, x, y));
+			}
+		}
 	}
 
 	/**
@@ -109,22 +145,23 @@ public class Game {
 	public void keyPressed(KeyCode code) {
 		switch (code){
 			case LEFT:
-				player.move(-1, 0);
+				player.move(Direction.left);
 				break;
 			case UP:
-				player.move(0, -1);
+				player.move(Direction.up);
 				break;
 			case RIGHT:
-				player.move(1, 0);
+				player.move(Direction.right);
 				break;
 			case DOWN:
-				player.move(0, 1);
+				player.move(Direction.down);
 				break;
 		}
 	}
 
 	public void setLevel(Level level) {
 		this.levelProperty.set(level);
+		newGame();
 	}
 
 	public Level getLevel() {
@@ -162,9 +199,9 @@ public class Game {
 	 * Load the title level
 	 */
 	public void loadTitleLevel() {
-		levelProperty.set(loadLevel(new File(getClass().getResource("/default").getPath())));
+		levelProperty.set(loadLevel(new File(getClass().getResource("/default.ser").getPath())));
 		Level level = levelProperty.get();
-		player = new Player(level.getField(7,5));
+		player = new PackMan(level.getField(7,5));
 		Ghost rambler = new Ghost(level.getField(0, 0));
 		Ghost scrambler = new Ghost(level.getField(0, level.height-1));
 		Ghost ambler = new Ghost(level.getField(level.width-1, 0));
@@ -173,10 +210,10 @@ public class Game {
 		scrambler.setColor(Color.DARKBLUE);
 		ambler.setColor(Color.DARKGOLDENROD);
 		johhny.setColor(Color.DARKORANGE);
-		mGhosts.add(rambler);
-		mGhosts.add(scrambler);
-		mGhosts.add(ambler);
-		mGhosts.add(johhny);
+		ghosts.add(rambler);
+		ghosts.add(scrambler);
+		ghosts.add(ambler);
+		ghosts.add(johhny);
 		mode = modes.title;
 	}
 
@@ -185,6 +222,10 @@ public class Game {
 			editor = new LevelEditor(this);
 		}
 		return editor;
+	}
+
+	public PackMan getPlayer() {
+		return player;
 	}
 
 	public enum modes {

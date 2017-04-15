@@ -1,5 +1,7 @@
 package MazeLogic;
 
+import utility.Direction;
+
 import java.awt.Point;
 import java.awt.Dimension;
 import java.io.Serializable;
@@ -37,6 +39,7 @@ public class Level extends Dimension implements Serializable{
 				mFields[x][y] = new Field(x, y);
 			}
 		}
+
 	}
 
 	/**
@@ -74,6 +77,12 @@ public class Level extends Dimension implements Serializable{
 	 */
 	public ArrayList<Field> getNeighbours(int x, int y){
 		ArrayList<Field> neighbours = new ArrayList<>(4);
+		for (Direction direction : Direction.getDirections()){
+			Field other = getField(x+direction.x, y+direction.y);
+			if(other != null)
+				neighbours.add(other);
+		}
+		/*
 		int dx=-1;
 		int dy=0;
 		for (int i = 0; i < 4; i++) {
@@ -84,7 +93,7 @@ public class Level extends Dimension implements Serializable{
 			int dn = dx;
 			dx = dy;
 			dy = -dn;
-		}
+		}*/
 		return neighbours;
 	}
 

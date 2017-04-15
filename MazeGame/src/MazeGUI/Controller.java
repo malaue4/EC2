@@ -99,6 +99,7 @@ public class Controller {
 
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Level Files", "*.ser"));
+		fileChooser.setInitialDirectory(new File(getClass().getResource("/default.ser").getPath()).getParentFile());
 		fileChooser.setTitle("Save As");
 		File file = fileChooser.showSaveDialog(null);
 
@@ -125,6 +126,7 @@ public class Controller {
 
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Level Files", "*.ser"));
+		fileChooser.setInitialDirectory(new File(getClass().getResource("/default.ser").getPath()).getParentFile());
 		fileChooser.setTitle("Load Level");
 		File file = fileChooser.showOpenDialog(null);
 

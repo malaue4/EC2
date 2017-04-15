@@ -1,4 +1,4 @@
-package MazeLogic;
+package entities;
 
 import javafx.scene.canvas.GraphicsContext;
 

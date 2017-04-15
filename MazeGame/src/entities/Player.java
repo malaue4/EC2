@@ -1,6 +1,9 @@
-package MazeLogic;
+package entities;
 
+import MazeLogic.Level;
 import com.sun.javafx.tk.Toolkit;
+import entities.GameObject;
+import utility.Direction;
 import utility.Utility;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -11,14 +14,15 @@ import java.awt.geom.Point2D;
 /**
  * The player class
  */
-public class Player implements GameObject{
+public class Player implements GameObject {
 	private Level.Field currentPosition;
 	private Level.Field previousPosition;
 	private Level.Field nextPosition;
+	private Direction direction;
 	/**
 	 * the time it takes for the player to move from one field to the next. Measured in nanoseconds
 	 */
-	private int moveTime = 150*1000000;
+	private int moveTime = 330*1000000;
 	/**
 	 * the last time the player moved
 	 */
@@ -82,10 +86,10 @@ public class Player implements GameObject{
 		Point2D interpolatedPosition = Utility.interpolateLinear(previousPosition, currentPosition, t);
 
 		graphicsContext.save();
-		graphicsContext.setFill(Color.RED);
+		/*graphicsContext.setFill(Color.RED);
 		for(Level.Field field : currentPosition.getLinkedFields()){
 			graphicsContext.fillOval(0.45+field.getX(),0.45+field.getY(),0.1,0.1);
-		}
+		}*/
 		graphicsContext.translate(interpolatedPosition.getX(), interpolatedPosition.getY());
 		graphicsContext.setFill(color);
 		graphicsContext.fillOval(0,0,1,1);
@@ -98,12 +102,12 @@ public class Player implements GameObject{
 	/**
 	 * Check if the field at the relative position dx, dy and the current field is linked, if they are the field is
 	 * marked as the next position, and the player will move there when it next updates/moves.
-	 * @param dx x coordinate relative to current position
-	 * @param dy y coordinate relative to current position
+	 * @param direction coordinate relative to current position
 	 */
-	public void move(int dx, int dy) {
+	public void move(Direction direction) {
+		this.direction = direction;
 		for(Level.Field field : currentPosition.getLinkedFields()){
-			if(field.getX()==currentPosition.getX()+dx && field.getY()==currentPosition.getY()+dy){
+			if(field.getX()==currentPosition.getX()+direction.x && field.getY()==currentPosition.getY()+direction.y){
 				nextPosition = field;
 				break;
 			}
@@ -156,5 +160,13 @@ public class Player implements GameObject{
 
 	public void setColor(Color color) {
 		this.color = color;
+	}
+
+	public Direction getDirection() {
+		return direction;
+	}
+
+	public void setDirection(Direction direction) {
+		this.direction = direction;
 	}
 }
