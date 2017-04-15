@@ -3,28 +3,38 @@ package entities;
 import MazeLogic.*;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Path;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Shape;
 import utility.Direction;
 import utility.Utility;
 
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Created by martin on 3/30/17.
  */
 public class Ghost extends Player {
-	PathFinder pathFinder;
+	private PathFinder pathfinder;
+	private List<Level.Field> path;
+	private Mood mood = Mood.attack;
+	private Level.Field spawn;
+	private Level.Field corner;
+
+	public void setCorner(Level.Field corner) {
+		this.corner = corner;
+	}
+
+	enum Mood{
+		attack,
+		retreat,
+		scramble
+	}
 
 	public Ghost(Level.Field start) {
 		super(start);
 		setMoveTime(350 * 1000000);
-		pathFinder = new AStar();
+		pathfinder = new RandomRambler();
+		spawn = start;
+		corner = start;
 	}
 
 	/**
@@ -32,8 +42,24 @@ public class Ghost extends Player {
 	 * @param now the current time
 	 */
 	public void update(long now){
+		if
+		if(mood != Mood.retreat && now%30000000000L < 15000000000L){
+			mood = Mood.attack;
+		} else {
+			mood = Mood.scramble;
+		}
 		if(getNextPosition() == null){
-			final List<Level.Field> path = pathFinder.getPath(getCurrentPosition(), Game.getInstance().getPlayer().getCurrentPosition());
+			switch (mood){
+				case attack:
+					path = pathfinder.getPath(getCurrentPosition(), Game.getInstance().getPlayer().getCurrentPosition());
+					break;
+				case retreat:
+					path = pathfinder.getPath(getCurrentPosition(), spawn);
+					break;
+				case scramble:
+					path = pathfinder.getPath(getCurrentPosition(), corner);
+					break;
+			}
 			if(!path.isEmpty()) {
 				setNextPosition(path.get(0));
 				setDirection(new Direction(getNextPosition().x - getCurrentPosition().x, getNextPosition().y - getCurrentPosition().y));
@@ -53,6 +79,11 @@ public class Ghost extends Player {
 		Point2D interpolatedPosition = Utility.interpolateLinear(getPreviousPosition(), getCurrentPosition(), t);
 
 		graphicsContext.save();
+		Level.Field previous = getCurrentPosition();
+		for (Level.Field current : path) {
+			graphicsContext.strokeLine(previous.x+0.5, previous.y+0.5, current.x+0.5, current.y+0.5);
+			previous = current;
+		}
 		graphicsContext.translate(interpolatedPosition.getX(), interpolatedPosition.getY());
 		//body
 		graphicsContext.setFill(getColor());
@@ -79,5 +110,9 @@ public class Ghost extends Player {
 		graphicsContext.fillOval(0.55+dx,0.25+dy,0.1,0.2);
 
 		graphicsContext.restore();
+	}
+
+	public void setPathfinder(PathFinder pathfinder) {
+		this.pathfinder = pathfinder;
 	}
 }

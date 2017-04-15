@@ -116,17 +116,29 @@ public class Game {
 		ghosts.clear();
 
 		Ghost rambler = new Ghost(level.getField(6, 4));
-		Ghost scrambler = new Ghost(level.getField(6, 6));
-		Ghost ambler = new Ghost(level.getField(8, 4));
-		Ghost johhny = new Ghost(level.getField(8, 6));
 		rambler.setColor(Color.DARKRED);
-		scrambler.setColor(Color.DARKBLUE);
-		ambler.setColor(Color.DARKGOLDENROD);
-		johhny.setColor(Color.DARKORANGE);
+		rambler.setPathfinder(new RandomRambler());
+		rambler.setCorner(getLevel().getField(0,0));
 		ghosts.add(rambler);
+
+		Ghost scrambler = new Ghost(level.getField(6, 6));
+		scrambler.setColor(Color.DARKBLUE);
+		scrambler.setPathfinder(new DepthFirst());
+		scrambler.setCorner(getLevel().getField(0,getLevel().height-1));
 		ghosts.add(scrambler);
+
+		Ghost ambler = new Ghost(level.getField(8, 4));
+		ambler.setColor(Color.DARKGOLDENROD);
+		ambler.setPathfinder(new BreadthFirst());
+		ambler.setCorner(getLevel().getField(getLevel().width-1,0));
 		ghosts.add(ambler);
-		ghosts.add(johhny);
+
+		Ghost johnny = new Ghost(level.getField(8, 6));
+		johnny.setColor(Color.DARKORANGE);
+		johnny.setPathfinder(new AStar());
+		johnny.setCorner(getLevel().getField(getLevel().width-1,getLevel().height-1));
+		ghosts.add(johnny);
+
 		for(int i = 0; i< level.width * level.height; i++){
 			final int x = i % level.width;
 			final int y = i / level.width;
