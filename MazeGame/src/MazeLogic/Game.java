@@ -1,7 +1,11 @@
 package MazeLogic;
 
 import MazeGUI.LevelEditor;
+import MazeLogic.pathfinding.AStar;
+import MazeLogic.pathfinding.BreadthFirst;
+import MazeLogic.pathfinding.DepthFirst;
 import entities.*;
+import entities.effects.Effect;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
@@ -23,6 +27,7 @@ public class Game {
 	private PackMan player;
 	private ArrayList<Ghost> ghosts = new ArrayList<>();
 	private ArrayList<Pellet> pellets = new ArrayList<>();
+	private ArrayList<Effect> effects = new ArrayList<>();;
 	private LevelEditor editor;
 
 	public Game.modes mode = Game.modes.title;
@@ -41,6 +46,28 @@ public class Game {
 		player.update(now);
 		for(Ghost ghost : ghosts){
 			ghost.update(now);
+		}
+
+		ArrayList<GameObject> deathrow = new ArrayList<>();
+		for(Pellet pellet : pellets){
+			if(player.getPosition().equals(pellet.getPosition())){
+				pellet.die();
+				deathrow.add(pellet);
+				if(pellet instanceof PowerPellet){
+					for(Ghost ghost :ghosts){
+						ghost.setMood(Ghost.Mood.blue);
+					}
+				}
+			}
+		}
+
+		for(Effect effect : effects){
+			effect.update(now);
+			if(effect.isDead()) deathrow.add(effect);
+		}
+		for(GameObject gameObject : deathrow){
+			if(pellets.contains(gameObject)) pellets.remove(gameObject);
+			else if(effects.contains(gameObject)) effects.remove(gameObject);
 		}
 	}
 
@@ -62,20 +89,7 @@ public class Game {
 		graphicsContext.fillRect(0, 0, width, height);
 		graphicsContext.strokeRect(0, 0, width, height);
 
-		for(Pellet pellet : pellets){
-			pellet.draw(graphicsContext, now);
-		}
-		// draw the player
-		player.draw(graphicsContext, now);
-		for(Ghost ghost : ghosts){
-			ghost.draw(graphicsContext, now);
-		}
-
-
-
 		// draw the walls
-		// jeg ville gerne kunne tegne væggene en gang, og så genbruge dem, men det virker ikke sådan ligetil at få en
-		// buffer man kan tegne til...
 		for(int x = 0; x< level.width; x++){
 			for (int y = 0; y < level.height; y++) {
 				Level.Field field = level.getField(x, y);
@@ -96,6 +110,21 @@ public class Game {
 					}
 				}
 			}
+		}
+
+		// draw the pellets
+		for(Pellet pellet : pellets){
+			pellet.draw(graphicsContext, now);
+		}
+		// draw effects
+		for(Effect effect : effects){
+			effect.draw(graphicsContext, now);
+		}
+		// draw the player
+		player.draw(graphicsContext, now);
+		// and then the ghosts
+		for(Ghost ghost : ghosts){
+			ghost.draw(graphicsContext, now);
 		}
 	}
 
@@ -181,9 +210,9 @@ public class Game {
 	}
 
 	/**
-	 * Load a levelProperty from a file
-	 * @param file - the file to load the levelProperty from
-	 * @return the loaded levelProperty, or null if an error occurred
+	 * Load a level from a file
+	 * @param file - the file to load the level from
+	 * @return the loaded level, or null if an error occurred
 	 */
 	public Level loadLevel(File file) {
 		Level level = null;
@@ -238,6 +267,15 @@ public class Game {
 
 	public PackMan getPlayer() {
 		return player;
+	}
+
+	public long getNow() {
+		return com.sun.javafx.tk.Toolkit.getToolkit().getMasterTimer().nanos();
+	}
+
+	public void spawnEffect(Point position, Effect effect) {
+		effect.setPosition(position);
+		effects.add(effect);
 	}
 
 	public enum modes {

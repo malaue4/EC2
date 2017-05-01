@@ -1,7 +1,8 @@
-package MazeLogic;
+package MazeLogic.pathfinding;
+
+import MazeLogic.Level;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.lang.Math.abs;
 
@@ -23,7 +24,7 @@ public class AStar implements PathFinder {
 		discovered.add(start);
 
 		while(!discovered.isEmpty()){
-			discovered.sort((node1, node2) -> (int)( cost.get(node1)+getHeuristicCost(node1, goal)-cost.get(node2)+getHeuristicCost(node2, goal)));
+			discovered.sort((node1, node2) -> (int)( (cost.get(node1)+getHeuristicCost(node1, goal))-(cost.get(node2)+getHeuristicCost(node2, goal))));
 
 			Level.Field field = discovered.remove(0);
 			if(field == goal) break;

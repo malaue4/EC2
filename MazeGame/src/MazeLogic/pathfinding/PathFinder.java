@@ -1,4 +1,6 @@
-package MazeLogic;
+package MazeLogic.pathfinding;
+
+import MazeLogic.Level;
 
 import java.util.List;
 

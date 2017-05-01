@@ -14,7 +14,7 @@ import java.awt.geom.Point2D;
 /**
  * The player class
  */
-public class Player implements GameObject {
+public abstract class Player implements GameObject {
 	private Level.Field currentPosition;
 	private Level.Field previousPosition;
 	private Level.Field nextPosition;
@@ -22,7 +22,7 @@ public class Player implements GameObject {
 	/**
 	 * the time it takes for the player to move from one field to the next. Measured in nanoseconds
 	 */
-	private int moveTime = 330*1000000;
+	private int moveTime = 430*1000000;
 	/**
 	 * the last time the player moved
 	 */
@@ -39,6 +39,7 @@ public class Player implements GameObject {
 	 * check if the player should move based on current time
 	 * @param now the current time
 	 */
+	@Override
 	public void update(long now){
 		if(now >= lastMove){
 			if(nextPosition==null)lastMove=now;
@@ -50,7 +51,6 @@ public class Player implements GameObject {
 	/**
 	 * updates the player's position. if nextPosition isn't null: previous -> current, current -> next, next -> null
 	 */
-	@Override
 	public void update() {
 		previousPosition = currentPosition;
 		if(nextPosition !=null){
@@ -69,9 +69,9 @@ public class Player implements GameObject {
 		return false;
 	}
 
-	@Override
+
 	public Point getPosition() {
-		return currentPosition;
+		return getCurrentPosition();
 	}
 
 

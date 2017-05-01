@@ -1,4 +1,6 @@
-package MazeLogic;
+package MazeLogic.pathfinding;
+
+import MazeLogic.Level;
 
 import java.util.*;
 
@@ -13,12 +15,20 @@ public class DepthFirst implements PathFinder {
 	public List<Level.Field> getPath(Level.Field start, Level.Field goal) {
 		Set<Level.Field> visited = new HashSet<>();
 		List<Level.Field> discovered = new ArrayList<>();
-
 		Map<Level.Field, Level.Field> cameFrom = new HashMap<>();
+
+
+
 
 		discovered.add(start);
 		while(!discovered.isEmpty()){
-			discovered.sort((o1, o2) -> (int) (getHeuristicCost(o1, goal)-getHeuristicCost(o2, goal)));
+			discovered.sort(new Comparator<Level.Field>() {
+				@Override
+				public int compare(Level.Field o1, Level.Field o2) {
+					return getHeuristicCost(o1, goal) - getHeuristicCost(o2, goal);
+				}
+			});
+
 			Level.Field field = discovered.remove(0);
 			if(field.equals(goal)) break;
 			visited.add(field);
@@ -41,7 +51,7 @@ public class DepthFirst implements PathFinder {
 		return path;
 	}
 
-	Double getHeuristicCost(Level.Field node1, Level.Field node2){
-		return abs(node1.getX()-node2.getX()) + abs(node1.getY()-node2.getY());
+	int getHeuristicCost(Level.Field node1, Level.Field node2){
+		return (int)(abs(node1.getX()-node2.getX()) + abs(node1.getY()-node2.getY()));
 	}
 }

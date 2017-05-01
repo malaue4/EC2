@@ -1,5 +1,8 @@
 package entities;
 
+import MazeLogic.Game;
+import entities.effects.Effect;
+import entities.effects.PelletDeath;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -39,13 +42,14 @@ public class Pellet implements GameObject {
 	}
 
 	@Override
-	public void update() {
+	public void update(long now) {
 
 	}
 
 	@Override
 	public void die() {
 		dead = true;
+		Game.getInstance().spawnEffect(position, new PelletDeath(Game.getInstance().getNow(), color));
 	}
 
 	public boolean isDead(){

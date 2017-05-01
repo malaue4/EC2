@@ -1,6 +1,6 @@
 package MazeLogic;
 
-import utility.Direction;
+import MazeLogic.pathfinding.PathFinder;
 
 import java.util.ArrayList;
 import java.util.List;

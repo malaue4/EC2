@@ -9,14 +9,12 @@ import java.awt.*;
  */
 public interface GameObject {
 
-	void update();
+	void update(long now);
+
+	void draw(GraphicsContext g, long now);
 
 	void die();
 
 	boolean isDead();
-
-	Point getPosition();
-
-	void draw(GraphicsContext g, long now);
 
 }

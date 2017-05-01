@@ -1,6 +1,7 @@
 package entities;
 
 import MazeLogic.*;
+import MazeLogic.pathfinding.PathFinder;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import utility.Direction;
@@ -15,23 +16,31 @@ import java.util.List;
 public class Ghost extends Player {
 	private PathFinder pathfinder;
 	private List<Level.Field> path;
-	private Mood mood = Mood.attack;
+	private Mood mood = Mood.scramble;
 	private Level.Field spawn;
 	private Level.Field corner;
+	private int blueTimer;
 
 	public void setCorner(Level.Field corner) {
 		this.corner = corner;
 	}
 
-	enum Mood{
+	public void setMood(Mood mood) {
+		this.mood = mood;
+		if(mood == Mood.blue){
+			blueTimer = 15;
+		}
+	}
+
+	public enum Mood{
 		attack,
 		retreat,
-		scramble
+		scramble,
+		blue
 	}
 
 	public Ghost(Level.Field start) {
 		super(start);
-		setMoveTime(350 * 1000000);
 		pathfinder = new RandomRambler();
 		spawn = start;
 		corner = start;
@@ -42,22 +51,35 @@ public class Ghost extends Player {
 	 * @param now the current time
 	 */
 	public void update(long now){
-		if
-		if(mood != Mood.retreat && now%30000000000L < 15000000000L){
-			mood = Mood.attack;
-		} else {
-			mood = Mood.scramble;
-		}
 		if(getNextPosition() == null){
+			setMoveTime(450 * 1000000);
 			switch (mood){
 				case attack:
 					path = pathfinder.getPath(getCurrentPosition(), Game.getInstance().getPlayer().getCurrentPosition());
+					if(now % 20000000000L > 18000000000L){
+						mood = Mood.scramble;
+					}
 					break;
 				case retreat:
 					path = pathfinder.getPath(getCurrentPosition(), spawn);
+					if(getCurrentPosition().equals(spawn)){
+						mood = Mood.attack;
+					}
 					break;
 				case scramble:
 					path = pathfinder.getPath(getCurrentPosition(), corner);
+					if(getCurrentPosition().equals(corner)){
+						mood = Mood.attack;
+					}
+					break;
+				case blue:
+					setMoveTime(650 * 1000000);
+					path = new RandomRambler().getPath(getCurrentPosition(), spawn);
+					if(blueTimer <= 0){
+						mood = Mood.attack;
+					} else {
+						blueTimer--;
+					}
 					break;
 			}
 			if(!path.isEmpty()) {
@@ -86,16 +108,24 @@ public class Ghost extends Player {
 		}
 		graphicsContext.translate(interpolatedPosition.getX(), interpolatedPosition.getY());
 		//body
-		graphicsContext.setFill(getColor());
+		if(mood == Mood.blue)
+			graphicsContext.setFill(Color.BLUE);
+		else
+			graphicsContext.setFill(getColor());
+
 		graphicsContext.fillOval(0.2,0.1,0.6,0.6);
 		graphicsContext.fillRect(0.2,0.4,0.6,0.4);
 		graphicsContext.fillOval(0.2,0.7,0.2,0.2);
 		graphicsContext.fillOval(0.4,0.7,0.2,0.2);
 		graphicsContext.fillOval(0.6,0.7,0.2,0.2);
-		//eye whites
-		graphicsContext.setFill(Color.WHITESMOKE);
-		graphicsContext.fillOval(0.3,0.2,0.2,0.3);
-		graphicsContext.fillOval(0.5,0.2,0.2,0.3);
+
+		if(mood != Mood.blue) {
+			//eye whites
+			graphicsContext.setFill(Color.WHITESMOKE);
+			graphicsContext.fillOval(0.3, 0.2, 0.2, 0.3);
+			graphicsContext.fillOval(0.5, 0.2, 0.2, 0.3);
+		}
+
 		//pupils
 		graphicsContext.setFill(Color.BLACK);
 		final double dx, dy;

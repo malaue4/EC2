@@ -1,4 +1,6 @@
-package MazeLogic;
+package MazeLogic.pathfinding;
+
+import MazeLogic.Level;
 
 import java.util.*;
 
@@ -13,15 +15,14 @@ public class BreadthFirst implements PathFinder {
 	public List<Level.Field> getPath(Level.Field start, Level.Field goal) {
 		Set<Level.Field> visited = new HashSet<>();
 		List<Level.Field> discovered = new ArrayList<>();
-
 		Map<Level.Field, Level.Field> cameFrom = new HashMap<>();
 
-		Map<Level.Field, Integer> cost = new HashMap<>();
+		//Map<Level.Field, Integer> cost = new HashMap<>();
 
-		cost.put(start, 0);
+		//cost.put(start, 0);
 		discovered.add(start);
 		while (!discovered.isEmpty()) {
-			discovered.sort(Comparator.comparingInt(cost::get));
+			//discovered.sort(Comparator.comparingInt(cost::get));
 			Level.Field field = discovered.remove(0);
 			if (field.equals(goal)) break;
 			visited.add(field);
@@ -30,7 +31,7 @@ public class BreadthFirst implements PathFinder {
 				if (visited.contains(neighbour) || discovered.contains(neighbour))
 					continue;
 
-				cost.put(neighbour, cost.get(field)+1);
+				//cost.put(neighbour, cost.get(field)+1);
 				discovered.add(neighbour);
 				cameFrom.put(neighbour, field);
 			}
