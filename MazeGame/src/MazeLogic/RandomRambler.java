@@ -2,29 +2,32 @@ package MazeLogic;
 
 import MazeLogic.pathfinding.PathFinder;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Created by Martin on 15-04-2017.
  */
 public class RandomRambler implements PathFinder {
 
-	Level.Field previousField;
+	private Level.Field previousStart;
 
 	@Override
 	public List<Level.Field> getPath(Level.Field start, Level.Field goal) {
 		List<Level.Field> fieldList = new ArrayList<>(start.getLinkedFields());
 		if(fieldList.size()>1){
-			fieldList.remove(previousField);
+			fieldList.remove(previousStart);
 		}
 
 		List<Level.Field> path = new ArrayList<>();
 		if(fieldList.size()>0) {
 			path.add(fieldList.get(new Random().nextInt(fieldList.size())));
 		}
-		previousField = start;
+		previousStart = start;
 		return path;
+	}
+
+	@Override
+	public Set<Level.Field> getVisited() {
+		return Collections.emptySet();
 	}
 }

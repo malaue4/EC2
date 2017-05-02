@@ -2,8 +2,9 @@ package MazeLogic;
 
 import MazeGUI.LevelEditor;
 import MazeLogic.pathfinding.AStar;
+import MazeLogic.pathfinding.BidirectionalSearch;
 import MazeLogic.pathfinding.BreadthFirst;
-import MazeLogic.pathfinding.DepthFirst;
+import MazeLogic.pathfinding.BestFirst;
 import entities.*;
 import entities.effects.Effect;
 import javafx.beans.property.SimpleObjectProperty;
@@ -65,6 +66,7 @@ public class Game {
 			effect.update(now);
 			if(effect.isDead()) deathrow.add(effect);
 		}
+
 		for(GameObject gameObject : deathrow){
 			if(pellets.contains(gameObject)) pellets.remove(gameObject);
 			else if(effects.contains(gameObject)) effects.remove(gameObject);
@@ -146,13 +148,13 @@ public class Game {
 
 		Ghost rambler = new Ghost(level.getField(6, 4));
 		rambler.setColor(Color.DARKRED);
-		rambler.setPathfinder(new RandomRambler());
+		rambler.setPathfinder(new BidirectionalSearch());
 		rambler.setCorner(getLevel().getField(0,0));
 		ghosts.add(rambler);
 
 		Ghost scrambler = new Ghost(level.getField(6, 6));
 		scrambler.setColor(Color.DARKBLUE);
-		scrambler.setPathfinder(new DepthFirst());
+		scrambler.setPathfinder(new BestFirst());
 		scrambler.setCorner(getLevel().getField(0,getLevel().height-1));
 		ghosts.add(scrambler);
 

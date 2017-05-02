@@ -101,11 +101,23 @@ public class Ghost extends Player {
 		Point2D interpolatedPosition = Utility.interpolateLinear(getPreviousPosition(), getCurrentPosition(), t);
 
 		graphicsContext.save();
-		Level.Field previous = getCurrentPosition();
-		for (Level.Field current : path) {
-			graphicsContext.strokeLine(previous.x+0.5, previous.y+0.5, current.x+0.5, current.y+0.5);
-			previous = current;
+
+		if(pathDraw()) {
+			for (Level.Field field : pathfinder.getVisited()) {
+				graphicsContext.setStroke(getColor().deriveColor(0, 1, 1, 0.5));
+
+				graphicsContext.strokeOval(field.x + 0.25, field.y + 0.25, 0.5, 0.5);
+			}
+
+
+			Level.Field previous = getCurrentPosition();
+			for (Level.Field field : path) {
+				graphicsContext.setStroke(getColor().brighter());
+				graphicsContext.strokeLine(previous.x + 0.5, previous.y + 0.5, field.x + 0.5, field.y + 0.5);
+				previous = field;
+			}
 		}
+
 		graphicsContext.translate(interpolatedPosition.getX(), interpolatedPosition.getY());
 		//body
 		if(mood == Mood.blue)
@@ -140,6 +152,10 @@ public class Ghost extends Player {
 		graphicsContext.fillOval(0.55+dx,0.25+dy,0.1,0.2);
 
 		graphicsContext.restore();
+	}
+
+	private boolean pathDraw() {
+		return true;
 	}
 
 	public void setPathfinder(PathFinder pathfinder) {

@@ -11,9 +11,15 @@ import static java.lang.Math.abs;
  */
 public class BreadthFirst implements PathFinder {
 
+	private Set<Level.Field> visited;
+	private Level.Field previousStart;
+
 	@Override
 	public List<Level.Field> getPath(Level.Field start, Level.Field goal) {
-		Set<Level.Field> visited = new HashSet<>();
+		if (start==goal) return Collections.emptyList();
+		if (start.getLinkedFields().contains(goal)) return Collections.singletonList(goal);
+
+		visited = new HashSet<>();
 		List<Level.Field> discovered = new ArrayList<>();
 		Map<Level.Field, Level.Field> cameFrom = new HashMap<>();
 
@@ -37,12 +43,17 @@ public class BreadthFirst implements PathFinder {
 			}
 		}
 
-		List<Level.Field> path = new ArrayList<>();
+		List<Level.Field> path = new LinkedList<>();
 		Level.Field field = goal;
 		while (cameFrom.containsKey(field)) {
 			path.add(0, field);
 			field = cameFrom.get(field);
 		}
 		return path;
+	}
+
+	@Override
+	public Set<Level.Field> getVisited() {
+		return visited;
 	}
 }

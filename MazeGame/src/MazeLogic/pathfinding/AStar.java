@@ -11,16 +11,21 @@ import static java.lang.Math.abs;
  */
 public class AStar implements PathFinder {
 
+	private Set<Level.Field> visited;
+	private Level.Field previousStart;
+
 	@Override
 	public List<Level.Field> getPath(Level.Field start, Level.Field goal) {
-		Set<Level.Field> visited = new HashSet<>();
+		if (start==goal) return Collections.emptyList();
+		if (start.getLinkedFields().contains(goal)) return Collections.singletonList(goal);
+
+		visited = new HashSet<>();
 		List<Level.Field> discovered = new ArrayList<>();
 		Map<Level.Field, Level.Field> cameFrom = new HashMap<>();
 
 		Map<Level.Field, Double> cost = new HashMap<>();
 
 		cost.put(start, 0.0);
-
 		discovered.add(start);
 
 		while(!discovered.isEmpty()){
@@ -30,12 +35,9 @@ public class AStar implements PathFinder {
 			if(field == goal) break;
 
 			visited.add(field);
-			List<Level.Field> neighbours = field.getLinkedFields();
-			for(Level.Field neighbour : neighbours){
+			for(Level.Field neighbour : field.getLinkedFields()){
 				if(visited.contains(neighbour))
 					continue;
-
-
 
 				if(!discovered.contains(neighbour)) {
 					discovered.add(neighbour);
@@ -48,7 +50,7 @@ public class AStar implements PathFinder {
 			}
 		}
 
-		List<Level.Field> path = new ArrayList<>();
+		List<Level.Field> path = new LinkedList<>();
 		Level.Field field = goal;
 		while(cameFrom.containsKey(field)){
 			path.add(0, field);
@@ -56,6 +58,11 @@ public class AStar implements PathFinder {
 		}
 
 		return path;
+	}
+
+	@Override
+	public Set<Level.Field> getVisited() {
+		return visited;
 	}
 
 	Double getHeuristicCost(Level.Field node1, Level.Field node2){
