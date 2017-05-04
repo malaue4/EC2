@@ -49,7 +49,7 @@ public class Pellet implements GameObject {
 	@Override
 	public void die() {
 		dead = true;
-		Game.getInstance().spawnEffect(position, new PelletDeath(Game.getInstance().getNow(), color));
+		Game.getInstance().spawnEffect(position, new PelletDeath(Game.getNow(), color));
 	}
 
 	public boolean isDead(){

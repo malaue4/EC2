@@ -1,5 +1,6 @@
 package MazeLogic.pathfinding;
 
+import MazeLogic.Game;
 import MazeLogic.Level;
 
 import java.util.*;
@@ -11,10 +12,10 @@ public class BidirectionalSearch extends PathFinder {
 
 	@Override
 	public List<Level.Field> calculatePath(Level.Field start, Level.Field goal) {
+		System.out.print("Bidirectional Search ");
 		LinkedList<Level.Field>
 				discoveredStart = new LinkedList<>(),
 				discoveredGoal = new LinkedList<>();
-		visited = new HashSet<>();
 
 		Map<Level.Field, Level.Field> cameFrom = new HashMap<>();
 		Level.Field intersectStart = null, intersectGoal = null;
@@ -22,12 +23,13 @@ public class BidirectionalSearch extends PathFinder {
 		discoveredStart.add(start);
 		discoveredGoal.add(goal);
 
-		while (!discoveredGoal.isEmpty() && !discoveredStart.isEmpty()){
+
+		while (!(discoveredGoal.isEmpty() || discoveredStart.isEmpty())){
 			Level.Field field = discoveredStart.pollFirst();
 
 			visited.add(field);
 			for(Level.Field neighbour : field.getLinkedFields()){
-				if(visited.contains(neighbour) || field == previousStart)
+				if(visited.contains(neighbour))
 					continue;
 
 				if(!discoveredStart.contains(neighbour)){
@@ -69,9 +71,9 @@ public class BidirectionalSearch extends PathFinder {
 			if(intersectGoal != null) break;
 		}
 
-		previousStart = start;
-
 		LinkedList<Level.Field> path = new LinkedList<>();
+
+		if(intersectStart==null || intersectGoal==null) return path;
 
 		// Construct path
 		for (Level.Field field=intersectStart; field != start; field=cameFrom.get(field)){
@@ -80,6 +82,10 @@ public class BidirectionalSearch extends PathFinder {
 		for (Level.Field field=intersectGoal; field != null; field=cameFrom.get(field)){
 			path.add(field);
 		}
+
+		seen.clear();
+		seen.addAll(discoveredStart);
+		seen.addAll(discoveredGoal);
 
 		return path;
 	}

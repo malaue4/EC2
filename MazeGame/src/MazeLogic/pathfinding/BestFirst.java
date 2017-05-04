@@ -13,7 +13,7 @@ public class BestFirst extends PathFinder {
 
 	@Override
 	public List<Level.Field> calculatePath(Level.Field start, Level.Field goal) {
-		visited = new HashSet<>();
+		System.out.print("Best First ");
 		List<Level.Field> discovered = new ArrayList<>();
 		Map<Level.Field, Level.Field> cameFrom = new HashMap<>();
 
@@ -22,14 +22,14 @@ public class BestFirst extends PathFinder {
 
 		discovered.add(start);
 		while(!discovered.isEmpty()){
-			discovered.sort(Comparator.comparingInt(o -> getHeuristicCost(o, goal)));
+			discovered.sort(Comparator.comparingInt(o -> getManhattanDistance(o, goal)));
 
 			Level.Field field = discovered.remove(0);
 			if(field.equals(goal)) break;
 			visited.add(field);
 
 			for(Level.Field neighbour : field.getLinkedFields()){
-				if(visited.contains(neighbour) || discovered.contains(neighbour) || field == previousStart)
+				if(visited.contains(neighbour) || discovered.contains(neighbour))
 					continue;
 
 				discovered.add(neighbour);
@@ -37,18 +37,9 @@ public class BestFirst extends PathFinder {
 			}
 		}
 
-		previousStart = start;
+		seen.clear();
+		seen.addAll(discovered);
 
-		List<Level.Field> path = new LinkedList<>();
-		Level.Field field = goal;
-		while(cameFrom.containsKey(field)){
-			path.add(0, field);
-			field = cameFrom.get(field);
-		}
-		return path;
-	}
-
-	int getHeuristicCost(Level.Field node1, Level.Field node2){
-		return (int)(abs(node1.getX()-node2.getX()) + abs(node1.getY()-node2.getY()));
+		return constructPath(goal, cameFrom);
 	}
 }

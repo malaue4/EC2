@@ -37,7 +37,7 @@
          <Label text="Draw Ghost Path:" />
          <GridPane>
            <columnConstraints>
-             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="50.0" />
+             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="70.0" />
              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="70.0" />
            </columnConstraints>
            <rowConstraints>
@@ -45,10 +45,10 @@
              <RowConstraints minHeight="10.0" prefHeight="14.0" vgrow="SOMETIMES" />
            </rowConstraints>
             <children>
-               <CheckBox fx:id="bluePath" mnemonicParsing="false" selected="true" text="Blue" />
-               <CheckBox fx:id="orangePath" mnemonicParsing="false" selected="true" text="Orange" GridPane.columnIndex="1" />
-               <CheckBox fx:id="redPath" mnemonicParsing="false" selected="true" text="Red" GridPane.rowIndex="1" />
-               <CheckBox fx:id="brownPath" mnemonicParsing="false" selected="true" text="Brown" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+               <CheckBox fx:id="scramblerPath" mnemonicParsing="false" selected="true" text="Orange" GridPane.rowIndex="1"/>
+               <CheckBox fx:id="johnnyPath" mnemonicParsing="false" selected="true" text="Red" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+               <CheckBox fx:id="ramblerPath" mnemonicParsing="false" selected="true" text="Blue"  />
+               <CheckBox fx:id="amblerPath" mnemonicParsing="false" selected="true" text="Pink" GridPane.columnIndex="1"  />
             </children>
          </GridPane>
         </FlowPane>

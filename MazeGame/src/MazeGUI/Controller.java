@@ -19,10 +19,10 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import java.io.*;
 
 public class Controller {
-	public CheckBox bluePath;
-	public CheckBox orangePath;
-	public CheckBox redPath;
-	public CheckBox brownPath;
+	public CheckBox scramblerPath;
+	public CheckBox johnnyPath;
+	public CheckBox ramblerPath;
+	public CheckBox amblerPath;
 	@FXML
 	Button buttonSave;
 	@FXML
@@ -51,10 +51,10 @@ public class Controller {
 				Bindings.createStringBinding(() -> game.levelProperty.get().getTitle(), game.levelProperty));
 		labelStatus.textProperty().set(game.mode.toString());
 
-		bluePath.selectedProperty().addListener((observable, oldValue, newValue) -> game.getScrambler().setPathDraw(newValue));
-		redPath.selectedProperty().addListener((observable, oldValue, newValue) -> game.getRambler().setPathDraw(newValue));
-		orangePath.selectedProperty().addListener((observable, oldValue, newValue) -> game.getJohnny().setPathDraw(newValue));
-		brownPath.selectedProperty().addListener((observable, oldValue, newValue) -> game.getAmbler().setPathDraw(newValue));
+		scramblerPath.selectedProperty().addListener((observable, oldValue, newValue) -> game.getScrambler().setPathDraw(newValue));
+		ramblerPath.selectedProperty().addListener((observable, oldValue, newValue) -> game.getRambler().setPathDraw(newValue));
+		johnnyPath.selectedProperty().addListener((observable, oldValue, newValue) -> game.getJohnny().setPathDraw(newValue));
+		amblerPath.selectedProperty().addListener((observable, oldValue, newValue) -> game.getAmbler().setPathDraw(newValue));
 
 		// Start and control game loop
 		new AnimationTimer() {

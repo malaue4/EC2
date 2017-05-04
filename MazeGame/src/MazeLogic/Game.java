@@ -51,6 +51,13 @@ public class Game {
 		player.update(now);
 		for(Ghost ghost : ghosts){
 			ghost.update(now);
+			if(player.getCurrentPosition().equals(ghost.getCurrentPosition())){
+				if(ghost.getMood() == Ghost.Mood.blue){
+					ghost.setMood(Ghost.Mood.retreat);
+				} else if(ghost.getMood() != Ghost.Mood.retreat){
+					System.out.println("player was caught");
+				}
+			}
 		}
 
 		ArrayList<GameObject> deathrow = new ArrayList<>();
@@ -146,30 +153,30 @@ public class Game {
 		goal = new Goal(getLevel().getField(30-1, 20-1));
 		*/
 		final Level level = getLevel();
-		player = new PackMan(level.getField(level.width/2, level.height/3));
+		player = new PackMan(level.getField(level.width/2, level.height*2/3));
 		pellets.clear();
 		ghosts.clear();
 
 		rambler = new Ghost(level.getField(6, 4));
-		rambler.setColor(Color.DARKRED);
+		rambler.setColor(Color.BLUE);
 		rambler.setPathfinder(new BidirectionalSearch());
 		rambler.setCorner(getLevel().getField(0,0));
 		ghosts.add(rambler);
 
-		scrambler = new Ghost(level.getField(6, 6));
-		scrambler.setColor(Color.DARKBLUE);
+		scrambler = new Ghost(level.getField(6, 5));
+		scrambler.setColor(Color.ORANGE);
 		scrambler.setPathfinder(new BestFirst());
 		scrambler.setCorner(getLevel().getField(0,getLevel().height-1));
 		ghosts.add(scrambler);
 
 		ambler = new Ghost(level.getField(8, 4));
-		ambler.setColor(Color.DARKGOLDENROD);
+		ambler.setColor(Color.PINK);
 		ambler.setPathfinder(new BreadthFirst());
 		ambler.setCorner(getLevel().getField(getLevel().width-1,0));
 		ghosts.add(ambler);
 
-		johnny = new Ghost(level.getField(8, 6));
-		johnny.setColor(Color.DARKORANGE);
+		johnny = new Ghost(level.getField(8, 5));
+		johnny.setColor(Color.RED);
 		johnny.setPathfinder(new AStar());
 		johnny.setCorner(getLevel().getField(getLevel().width-1,getLevel().height-1));
 		ghosts.add(johnny);
@@ -253,10 +260,10 @@ public class Game {
 		Ghost scrambler = new Ghost(level.getField(0, level.height-1));
 		Ghost ambler = new Ghost(level.getField(level.width-1, 0));
 		Ghost johhny = new Ghost(level.getField(level.width-1, level.height-1));
-		rambler.setColor(Color.DARKRED);
-		scrambler.setColor(Color.DARKBLUE);
-		ambler.setColor(Color.DARKGOLDENROD);
-		johhny.setColor(Color.DARKORANGE);
+		rambler.setColor(Color.BLUE);
+		scrambler.setColor(Color.ORANGE);
+		ambler.setColor(Color.PINK);
+		johhny.setColor(Color.RED);
 		ghosts.add(rambler);
 		ghosts.add(scrambler);
 		ghosts.add(ambler);
@@ -275,7 +282,7 @@ public class Game {
 		return player;
 	}
 
-	public long getNow() {
+	public static long getNow() {
 		return com.sun.javafx.tk.Toolkit.getToolkit().getMasterTimer().nanos();
 	}
 

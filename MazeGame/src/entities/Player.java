@@ -116,8 +116,8 @@ public abstract class Player implements GameObject {
 	}
 
 	public void setMoveTime(int moveTime) {
-		double relativeMove = (Game.getInstance().getNow()-getLastMove())/(double)this.moveTime;
-		setLastMove(Game.getInstance().getNow()-(long)(moveTime*relativeMove));
+		double relativeMove = (Game.getNow()-getLastMove())/(double)this.moveTime;
+		setLastMove(Game.getNow()-(long)(moveTime*relativeMove));
 		this.moveTime = moveTime;
 	}
 

@@ -82,18 +82,6 @@ public class Level extends Dimension implements Serializable{
 			if(other != null)
 				neighbours.add(other);
 		}
-		/*
-		int dx=-1;
-		int dy=0;
-		for (int i = 0; i < 4; i++) {
-			Field other = getField(x+dx, y+dy);
-			if(other != null)
-				neighbours.add(other);
-
-			int dn = dx;
-			dx = dy;
-			dy = -dn;
-		}*/
 		return neighbours;
 	}
 
