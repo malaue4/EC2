@@ -15,11 +15,13 @@ import java.util.List;
  */
 public class Ghost extends Player {
 	private PathFinder pathfinder;
+	private RandomRambler random;
 	private List<Level.Field> path;
 	private Mood mood = Mood.scramble;
 	private Level.Field spawn;
 	private Level.Field corner;
 	private int blueTimer;
+	private boolean pathDraw = true;
 
 	public void setCorner(Level.Field corner) {
 		this.corner = corner;
@@ -28,7 +30,10 @@ public class Ghost extends Player {
 	public void setMood(Mood mood) {
 		this.mood = mood;
 		if(mood == Mood.blue){
+			setMoveTime(650 * 1000000);
 			blueTimer = 15;
+		} else {
+			setMoveTime(450 * 1000000);
 		}
 	}
 
@@ -41,7 +46,8 @@ public class Ghost extends Player {
 
 	public Ghost(Level.Field start) {
 		super(start);
-		pathfinder = new RandomRambler();
+		random = new RandomRambler();
+		pathfinder = random;
 		spawn = start;
 		corner = start;
 	}
@@ -52,31 +58,29 @@ public class Ghost extends Player {
 	 */
 	public void update(long now){
 		if(getNextPosition() == null){
-			setMoveTime(450 * 1000000);
 			switch (mood){
 				case attack:
-					path = pathfinder.getPath(getCurrentPosition(), Game.getInstance().getPlayer().getCurrentPosition());
+					path = pathfinder.calculatePath(getCurrentPosition(), Game.getInstance().getPlayer().getCurrentPosition());
 					if(now % 20000000000L > 18000000000L){
-						mood = Mood.scramble;
+						setMood(Mood.scramble);
 					}
 					break;
 				case retreat:
-					path = pathfinder.getPath(getCurrentPosition(), spawn);
+					path = pathfinder.calculatePath(getCurrentPosition(), spawn);
 					if(getCurrentPosition().equals(spawn)){
-						mood = Mood.attack;
+						setMood(Mood.attack);
 					}
 					break;
 				case scramble:
-					path = pathfinder.getPath(getCurrentPosition(), corner);
+					path = pathfinder.calculatePath(getCurrentPosition(), corner);
 					if(getCurrentPosition().equals(corner)){
-						mood = Mood.attack;
+						setMood(Mood.attack);
 					}
 					break;
 				case blue:
-					setMoveTime(650 * 1000000);
-					path = new RandomRambler().getPath(getCurrentPosition(), spawn);
+					path = random.calculatePath(getCurrentPosition(), spawn);
 					if(blueTimer <= 0){
-						mood = Mood.attack;
+						setMood(Mood.attack);
 					} else {
 						blueTimer--;
 					}
@@ -102,7 +106,7 @@ public class Ghost extends Player {
 
 		graphicsContext.save();
 
-		if(pathDraw()) {
+		if(getPathDraw()) {
 			for (Level.Field field : pathfinder.getVisited()) {
 				graphicsContext.setStroke(getColor().deriveColor(0, 1, 1, 0.5));
 
@@ -154,8 +158,12 @@ public class Ghost extends Player {
 		graphicsContext.restore();
 	}
 
-	private boolean pathDraw() {
-		return true;
+	private boolean getPathDraw() {
+		return pathDraw;
+	}
+
+	public void setPathDraw(Boolean pathDraw) {
+		this.pathDraw = pathDraw;
 	}
 
 	public void setPathfinder(PathFinder pathfinder) {

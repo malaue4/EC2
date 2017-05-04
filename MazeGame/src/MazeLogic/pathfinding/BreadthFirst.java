@@ -9,16 +9,10 @@ import static java.lang.Math.abs;
 /**
  * Created by Martin on 15-04-2017.
  */
-public class BreadthFirst implements PathFinder {
-
-	private Set<Level.Field> visited;
-	private Level.Field previousStart;
+public class BreadthFirst extends PathFinder {
 
 	@Override
-	public List<Level.Field> getPath(Level.Field start, Level.Field goal) {
-		if (start==goal) return Collections.emptyList();
-		if (start.getLinkedFields().contains(goal)) return Collections.singletonList(goal);
-
+	public List<Level.Field> calculatePath(Level.Field start, Level.Field goal) {
 		visited = new HashSet<>();
 		List<Level.Field> discovered = new ArrayList<>();
 		Map<Level.Field, Level.Field> cameFrom = new HashMap<>();
@@ -34,7 +28,7 @@ public class BreadthFirst implements PathFinder {
 			visited.add(field);
 
 			for (Level.Field neighbour : field.getLinkedFields()) {
-				if (visited.contains(neighbour) || discovered.contains(neighbour))
+				if (visited.contains(neighbour) || discovered.contains(neighbour) || field == previousStart)
 					continue;
 
 				//cost.put(neighbour, cost.get(field)+1);
@@ -43,17 +37,14 @@ public class BreadthFirst implements PathFinder {
 			}
 		}
 
-		List<Level.Field> path = new LinkedList<>();
+		previousStart = start;
+
+		LinkedList<Level.Field> path = new LinkedList<>();
 		Level.Field field = goal;
 		while (cameFrom.containsKey(field)) {
-			path.add(0, field);
+			path.addFirst(field);
 			field = cameFrom.get(field);
 		}
 		return path;
-	}
-
-	@Override
-	public Set<Level.Field> getVisited() {
-		return visited;
 	}
 }

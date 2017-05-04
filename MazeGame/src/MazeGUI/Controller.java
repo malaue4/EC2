@@ -10,6 +10,7 @@ import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
@@ -18,6 +19,10 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import java.io.*;
 
 public class Controller {
+	public CheckBox bluePath;
+	public CheckBox orangePath;
+	public CheckBox redPath;
+	public CheckBox brownPath;
 	@FXML
 	Button buttonSave;
 	@FXML
@@ -45,6 +50,11 @@ public class Controller {
 		labelLevel.textProperty().bind(
 				Bindings.createStringBinding(() -> game.levelProperty.get().getTitle(), game.levelProperty));
 		labelStatus.textProperty().set(game.mode.toString());
+
+		bluePath.selectedProperty().addListener((observable, oldValue, newValue) -> game.getScrambler().setPathDraw(newValue));
+		redPath.selectedProperty().addListener((observable, oldValue, newValue) -> game.getRambler().setPathDraw(newValue));
+		orangePath.selectedProperty().addListener((observable, oldValue, newValue) -> game.getJohnny().setPathDraw(newValue));
+		brownPath.selectedProperty().addListener((observable, oldValue, newValue) -> game.getAmbler().setPathDraw(newValue));
 
 		// Start and control game loop
 		new AnimationTimer() {

@@ -1,5 +1,6 @@
 package entities;
 
+import MazeLogic.Game;
 import MazeLogic.Level;
 import com.sun.javafx.tk.Toolkit;
 import entities.GameObject;
@@ -115,6 +116,8 @@ public abstract class Player implements GameObject {
 	}
 
 	public void setMoveTime(int moveTime) {
+		double relativeMove = (Game.getInstance().getNow()-getLastMove())/(double)this.moveTime;
+		setLastMove(Game.getInstance().getNow()-(long)(moveTime*relativeMove));
 		this.moveTime = moveTime;
 	}
 

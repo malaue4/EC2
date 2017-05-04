@@ -32,6 +32,10 @@ public class Game {
 	private LevelEditor editor;
 
 	public Game.modes mode = Game.modes.title;
+	private Ghost rambler;
+	private Ghost scrambler;
+	private Ghost ambler;
+	private Ghost johnny;
 
 	public static Game getInstance() {
 		return instance;
@@ -146,25 +150,25 @@ public class Game {
 		pellets.clear();
 		ghosts.clear();
 
-		Ghost rambler = new Ghost(level.getField(6, 4));
+		rambler = new Ghost(level.getField(6, 4));
 		rambler.setColor(Color.DARKRED);
 		rambler.setPathfinder(new BidirectionalSearch());
 		rambler.setCorner(getLevel().getField(0,0));
 		ghosts.add(rambler);
 
-		Ghost scrambler = new Ghost(level.getField(6, 6));
+		scrambler = new Ghost(level.getField(6, 6));
 		scrambler.setColor(Color.DARKBLUE);
 		scrambler.setPathfinder(new BestFirst());
 		scrambler.setCorner(getLevel().getField(0,getLevel().height-1));
 		ghosts.add(scrambler);
 
-		Ghost ambler = new Ghost(level.getField(8, 4));
+		ambler = new Ghost(level.getField(8, 4));
 		ambler.setColor(Color.DARKGOLDENROD);
 		ambler.setPathfinder(new BreadthFirst());
 		ambler.setCorner(getLevel().getField(getLevel().width-1,0));
 		ghosts.add(ambler);
 
-		Ghost johnny = new Ghost(level.getField(8, 6));
+		johnny = new Ghost(level.getField(8, 6));
 		johnny.setColor(Color.DARKORANGE);
 		johnny.setPathfinder(new AStar());
 		johnny.setCorner(getLevel().getField(getLevel().width-1,getLevel().height-1));
@@ -278,6 +282,22 @@ public class Game {
 	public void spawnEffect(Point position, Effect effect) {
 		effect.setPosition(position);
 		effects.add(effect);
+	}
+
+	public Ghost getScrambler() {
+		return scrambler;
+	}
+
+	public Ghost getRambler() {
+		return rambler;
+	}
+
+	public Ghost getAmbler() {
+		return ambler;
+	}
+
+	public Ghost getJohnny() {
+		return johnny;
 	}
 
 	public enum modes {

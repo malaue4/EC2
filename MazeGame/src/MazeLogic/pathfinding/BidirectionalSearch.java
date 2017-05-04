@@ -7,16 +7,10 @@ import java.util.*;
 /**
  * Created by Martin on 5/2/2017.
  */
-public class BidirectionalSearch implements PathFinder {
-
-	private Set<Level.Field> visited;
-	private Level.Field previousStart;
+public class BidirectionalSearch extends PathFinder {
 
 	@Override
-	public List<Level.Field> getPath(Level.Field start, Level.Field goal) {
-		if (start==goal) return Collections.emptyList();
-		if (start.getLinkedFields().contains(goal)) return Collections.singletonList(goal);
-
+	public List<Level.Field> calculatePath(Level.Field start, Level.Field goal) {
 		LinkedList<Level.Field>
 				discoveredStart = new LinkedList<>(),
 				discoveredGoal = new LinkedList<>();
@@ -33,7 +27,7 @@ public class BidirectionalSearch implements PathFinder {
 
 			visited.add(field);
 			for(Level.Field neighbour : field.getLinkedFields()){
-				if(visited.contains(neighbour))
+				if(visited.contains(neighbour) || field == previousStart)
 					continue;
 
 				if(!discoveredStart.contains(neighbour)){
@@ -75,6 +69,8 @@ public class BidirectionalSearch implements PathFinder {
 			if(intersectGoal != null) break;
 		}
 
+		previousStart = start;
+
 		LinkedList<Level.Field> path = new LinkedList<>();
 
 		// Construct path
@@ -86,10 +82,5 @@ public class BidirectionalSearch implements PathFinder {
 		}
 
 		return path;
-	}
-
-	@Override
-	public Set<Level.Field> getVisited() {
-		return visited;
 	}
 }

@@ -7,12 +7,10 @@ import java.util.*;
 /**
  * Created by Martin on 15-04-2017.
  */
-public class RandomRambler implements PathFinder {
-
-	private Level.Field previousStart;
+public class RandomRambler extends PathFinder {
 
 	@Override
-	public List<Level.Field> getPath(Level.Field start, Level.Field goal) {
+	public List<Level.Field> calculatePath(Level.Field start, Level.Field goal) {
 		List<Level.Field> fieldList = new ArrayList<>(start.getLinkedFields());
 		if(fieldList.size()>1){
 			fieldList.remove(previousStart);
